@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Obesity Intelligence Dashboard — UI Skeleton</title>
+  <style>
+    /* =============================================
+       THEME
+       ============================================= */
+    :root {
+      --bg: #0b0f14;                 /* page background */
+      --surface: rgba(255,255,255,0.06); /* subtle glass */
+      --surface-plain: #121821;      /* plain surface for contrast */
+      --primary: #4cc9f0;            /* primary accent */
+      --secondary: #b8c0ff;          /* secondary accent for meaning */
+      --good: #47d7ac;               /* semantic examples */
+      --warn: #f6c949;
+      --bad:  #ff6b6b;
+      --text: #e7eef7;               /* main text */
+      --muted: #9aa7b8;              /* subdued text */
+      --border-color: rgba(255,255,255,0.12);
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(0,0,0,.25);
+      --container: 1320px;
+      --gap: 20px;
+    }
+
+    /* Base */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 700px at 0% -10%, #142032 0%, transparent 60%),
+        radial-gradient(900px 600px at 110% -20%, #1a2a40 0%, transparent 60%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.42;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container { max-width: var(--container); margin: 0 auto; padding: 24px; }
+    .glass { background: var(--surface); border: 1px solid var(--border-color); backdrop-filter: blur(6px) saturate(120%); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .plain { background: var(--surface-plain); border-radius: var(--radius); }
+
+    /* =============================================
+       HEADER & NAV
+       ============================================= */
+    header.site-header { position: sticky; top: 0; z-index: 20; background: linear-gradient(180deg, rgba(11,15,20,0.9), rgba(11,15,20,0.6)); border-bottom: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #1f4b8f 0%, #4cc9f0 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); }
+    .brand h1 { margin: 0; font-size: 18px; letter-spacing: 0.2px; font-weight: 600; }
+
+    .nav-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tab { padding: 10px 14px; border-radius: 12px; color: var(--text); border: 1px solid transparent; }
+    .tab[aria-current="page"] { background: rgba(76,201,240,0.12); border-color: rgba(76,201,240,0.35); }
+
+    /* Section titles */
+    .section-title { display: flex; align-items: baseline; justify-content: space-between; margin: 8px 0 14px; }
+    .section-title h2 { margin: 0; font-size: 20px; letter-spacing: 0.2px; }
+    .section-title .sub { color: var(--muted); font-size: 14px; }
+
+    /* =============================================
+       GRID LAYOUT
+       ============================================= */
+    .grid { display: grid; gap: var(--gap); grid-template-columns: 280px 1fr; }
+    @media (max-width: 1040px) { .grid { grid-template-columns: 1fr; } }
+
+    /* Sidebar */
+    .sidebar { position: sticky; top: 84px; align-self: start; display: flex; flex-direction: column; gap: var(--gap); }
+
+    .panel { padding: 16px; }
+    .panel h3 { margin: 0 0 10px; font-size: 12px; color: var(--secondary); letter-spacing: .35px; text-transform: uppercase; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    label { font-size: 13px; color: var(--muted); }
+    select, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: var(--text);
+    }
+
+    /* Main column */
+    .main { display: flex; flex-direction: column; gap: var(--gap); }
+
+    /* KPI / Headline */
+    .kpi-row { display: grid; gap: var(--gap); grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 1200px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .kpi-row { grid-template-columns: 1fr; } }
+    .kpi { padding: 16px; position: relative; overflow: hidden; }
+    .kpi .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .35px; }
+    .kpi .value { font-size: 28px; font-weight: 700; margin-top: 6px; }
+    .kpi .delta { font-size: 12px; margin-top: 4px; }
+    .kpi.good .delta { color: var(--good); }
+    .kpi.warn .delta { color: var(--warn); }
+    .kpi.bad  .delta { color: var(--bad); }
+
+    /* Map & distributions */
+    .block { padding: 16px; }
+    .block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .block-title { font-size: 16px; margin: 0; }
+    .block-sub { font-size: 13px; color: var(--muted); }
+
+    .split-2 { display: grid; gap: var(--gap); grid-template-columns: 1.1fr 1fr; }
+    @media (max-width: 1200px) { .split-2 { grid-template-columns: 1fr; } }
+
+    .map-canvas, .chart-canvas, .table-canvas { height: 360px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.16); display: grid; place-items: center; color: var(--muted); }
+
+    /* Pivot-like area */
+    .pivot-layout { display: grid; gap: var(--gap); grid-template-columns: 260px 1fr; }
+    @media (max-width: 1040px) { .pivot-layout { grid-template-columns: 1fr; } }
+    .pivot-fields { padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(184,192,255,0.12); color: #e9ecff; font-size: 12px; margin: 4px 6px 0 0; }
+
+    /* Detail table */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; }
+    th { color: var(--secondary); font-weight: 600; }
+
+    /* Footer */
+    footer { color: var(--muted); font-size: 12px; padding: 24px 0 60px; }
+  </style>
+</head>
+<body>
+  <!-- =========================================== -->
+  <!-- HEADER / GLOBAL NAV                         -->
+  <!-- =========================================== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="nav" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <h1>Obesity Intelligence Dashboard</h1>
+        </div>
+        <div class="nav-tabs" role="tablist">
+          <a class="tab" href="#overview" aria-current="page">Overview</a>
+          <a class="tab" href="#geography">Geography</a>
+          <a class="tab" href="#distributions">Distributions</a>
+          <a class="tab" href="#population">Population Database</a>
+          <a class="tab" href="#about">About</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <!-- ======================================= -->
+      <!-- SIDEBAR FILTERS                         -->
+      <!-- ======================================= -->
+      <aside class="sidebar">
+        <section class="panel glass" aria-labelledby="filters-title">
+          <h3 id="filters-title">Filters</h3>
+
+          <div class="field">
+            <label for="geo">Geography</label>
+            <select id="geo" name="geo">
+              <option>Nation</option>
+              <option>Region</option>
+              <option>Local Authority</option>
+              <option>LSOA</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="age">Age Group</label>
+            <select id="age" name="age">
+              <option>All ages</option>
+              <option>5–15</option>
+              <option>16–24</option>
+              <option>25–44</option>
+              <option>45–64</option>
+              <option>65+</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="sex">Sex</label>
+            <select id="sex" name="sex">
+              <option>All</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="imd">Deprivation Quintile</label>
+            <select id="imd" name="imd">
+              <option>All</option>
+              <option>Q1 Most deprived</option>
+              <option>Q2</option>
+              <option>Q3</option>
+              <option>Q4</option>
+              <option>Q5 Least deprived</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="period">Period</label>
+            <select id="period" name="period">
+              <option>Latest</option>
+              <option>2024</option>
+              <option>2023</option>
+              <option>2022</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="panel glass" aria-labelledby="download-title">
+          <h3 id="download-title">Export</h3>
+          <p class="sub" style="margin:0;color:var(--muted)">Placeholder for download and share controls.</p>
+        </section>
+      </aside>
+
+      <!-- ======================================= -->
+      <!-- MAIN CONTENT                            -->
+      <!-- ======================================= -->
+      <section class="main">
+        <!-- Headline KPIs -->
+        <section id="overview" class="glass panel" aria-labelledby="kpi-title">
+          <div class="section-title">
+            <h2 id="kpi-title">Headline Indicators</h2>
+            <div class="sub">Latest period, selected filters</div>
+          </div>
+          <div class="kpi-row">
+            <article class="kpi plain good" aria-label="Adult obesity prevalence">
+              <div class="label">Adult Obesity Prevalence</div>
+              <div class="value">—%</div>
+              <div class="delta">Δ — pp vs last year</div>
+            </article>
+            <article class="kpi plain warn" aria-label="Child obesity prevalence">
+              <div class="label">Child Obesity Prevalence</div>
+              <div class="value">—%</div>
+              <div class="delta">Δ — pp vs last year</div>
+            </article>
+            <article class="kpi plain" aria-label="Severe obesity prevalence">
+              <div class="label">Severe Obesity</div>
+              <div class="value">—%</div>
+              <div class="delta">Δ — pp vs last year</div>
+            </article>
+            <article class="kpi plain bad" aria-label="At-risk population count">
+              <div class="label">At‑Risk Population</div>
+              <div class="value">—</div>
+              <div class="delta">Change —</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Geography -->
+        <section id="geography" class="glass block" aria-labelledby="geo-title">
+          <div class="block-header">
+            <h2 id="geo-title" class="block-title">Geography of Obesity</h2>
+            <div class="block-sub">Choropleth with selectable metric</div>
+          </div>
+          <div class="split-2">
+            <div class="map-canvas" role="img" aria-label="Choropleth map placeholder">Map placeholder</div>
+            <div class="chart-canvas" role="img" aria-label="Ranked bar chart placeholder">Ranked distribution placeholder</div>
+          </div>
+        </section>
+
+        <!-- Distributions -->
+        <section id="distributions" class="glass block" aria-labelledby="dist-title">
+          <div class="block-header">
+            <h2 id="dist-title" class="block-title">Distributions</h2>
+            <div class="block-sub">BMI bands, age/sex, deprivation</div>
+          </div>
+          <div class="split-2">
+            <div class="chart-canvas" role="img" aria-label="BMI distribution chart placeholder">BMI distribution placeholder</div>
+            <div class="chart-canvas" role="img" aria-label="Trend lines placeholder">Trend lines placeholder</div>
+          </div>
+        </section>
+
+        <!-- Population Database: Pivot-like exploration -->
+        <section id="population" class="glass block" aria-labelledby="pop-title">
+          <div class="block-header">
+            <h2 id="pop-title" class="block-title">Population Database</h2>
+            <div class="block-sub">Pivot-style exploration of demographics and risk</div>
+          </div>
+          <div class="pivot-layout">
+            <aside class="pivot-fields" aria-label="Pivot fields">
+              <h3 style="margin:0 0 8px; font-size:13px; color:var(--secondary); text-transform:uppercase; letter-spacing:.3px;">Fields</h3>
+              <div class="pill" aria-label="Age group field">Age group</div>
+              <div class="pill" aria-label="Sex field">Sex</div>
+              <div class="pill" aria-label="Deprivation field">Deprivation quintile</div>
+              <div class="pill" aria-label="Ethnicity field">Ethnicity</div>
+              <div class="pill" aria-label="BMI band field">BMI band</div>
+              <div class="pill" aria-label="Comorbidity field">Comorbidities</div>
+              <div class="pill" aria-label="Smoking status field">Smoking status</div>
+              <div class="pill" aria-label="HSCT field">HSCT</div>
+            </aside>
+            <div class="table-canvas" role="region" aria-label="Pivot table placeholder">Pivot table placeholder</div>
+          </div>
+        </section>
+
+        <!-- Detail table / drill-down -->
+        <section class="glass block" aria-labelledby="detail-title">
+          <div class="block-header">
+            <h2 id="detail-title" class="block-title">Detailed Records</h2>
+            <div class="block-sub">Filtered individuals with health, demographic and risk characteristics</div>
+          </div>
+          <div class="plain" style="padding:12px; border:1px solid var(--border-color); border-radius:12px; overflow:auto;">
+            <table aria-label="Records table">
+              <thead>
+                <tr>
+                  <th>Person ID</th>
+                  <th>Age</th>
+                  <th>Sex</th>
+                  <th>HSCT</th>
+                  <th>Deprivation</th>
+                  <th>BMI</th>
+                  <th>Comorbidities</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+                </tr>
+                <tr>
+                  <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <footer>
+      <div>Prototype UI skeleton. No JavaScript included; components are placeholders for later interaction.</div>
+    </footer>
+  </main>
+</body>
+</html>
