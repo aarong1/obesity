@@ -3,10 +3,42 @@ library(echarts4r)
 library(jsonlite)
 library(dplyr)
 library(purrr)
+#' 
+# load('prep_interactive_model_run.RData')
+#' 
+#' # save(file = 'run_requirements.RData',
+#' #      initial_time_zero_population,
+#' #      prevalence_hsct,
+#' #      prevalence_hsct_new,
+#' #      test_specification,
+#' #      trusts,
+#' #      morbidities,
+#' #      apply_qmortality_mortality,
+#' #      apply_age_sex_death,
+#' #      lifetables,
+#' #      qmortality_risk,
+#' #      qmortality_female_risk,
+#' #      qmortality_male_risk,dead_population,
+#' #      apply_chd_risk,
+#' #      transform_10y_probability_to_1y,
+#' #      transform_probability_to_1y)
+#' #
+#' # rm(list=ls())
+#' #
+#' # load(file = 'run_requirements.RData')
+#' 
+#' #' initial_time_zero_population <- read.csv('initial_time_zero_population.csv')
+#' source('main_utils_2_4.R')
+#' #' source('./modules/chart_update_module/prep_interactive_model_run.R')
 
-source('./modules/chart_update_module/prep_interactive_model_run.R')
-load("prep_interactive_model_run.RData")
+
+
+
+
+# load("prep_interactive_model_run.RData")
+
 # Module UI
+
 chartUpdateModuleUI <- function(id) {
   ns <- NS(id)
   echart_id <- (ns('target_echart')) #demo_chart-target_echart
@@ -161,7 +193,7 @@ chartUpdateModuleServer <- function(id, runButton = reactive(run)) {
           
           print('Adding the current population to the past populations data structure')
           #current_population <- current_population |> select(-bern_trial)
-          past_populations <- rbind(past_populations, current_population)
+          past_populations <- bind_rows(past_populations, current_population)
           
           current_population <- current_population |>
             mutate(age = age + 1) |> 
@@ -190,7 +222,7 @@ chartUpdateModuleServer <- function(id, runButton = reactive(run)) {
           current_population_who_died <- current_population |> 
             filter( !is.na(death) & !is.null(death) & !death==0 )
           
-          dead_population <- rbind(dead_population, current_population_who_died)
+          dead_population <- bind_rows(dead_population, current_population_who_died)
           
           current_population_alive <- current_population |> 
             filter(is.na(death)| is.null(death)| death==0)
@@ -263,4 +295,14 @@ chartUpdateModuleServer <- function(id, runButton = reactive(run)) {
     ))
   })
 }
+
+# shinyApp(
+#   ui = fluidPage(
+#     chartUpdateModuleUI("chart1"),
+#     actionButton("run", "Run Simulation")
+#   ),
+#   server = function(input, output, session) {
+#     chartUpdateModuleServer("chart1", runButton = reactive(input$run))
+#   }
+# )
 

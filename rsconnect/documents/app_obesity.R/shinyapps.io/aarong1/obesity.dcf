@@ -1,0 +1,13 @@
+name: obesity
+title: obesity
+username: aarong1
+account: aarong1
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15915883
+bundleId: 11108809
+url: https://aarong1.shinyapps.io/obesity/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|.RDataTmp|25694.png|361-3618704_owner-house-icon-png-white-transparent-png.png|belfast.png|blueprint_!.png|briefcase_2_icon_png.png|briefcase_icon_png.png|car_icon_png.png|enniskillen.png|GHE_DALYs.R|key.png|new_module.R|ni.png|obesigenic_environment.R|populations/k20_population.fst|populations/test_population.csv|roma.js|tables.R|theme.json|theme.R|www/inverse_logo.png|www/logo_pop.png

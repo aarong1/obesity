@@ -187,34 +187,34 @@ pivot_agg <- function(data,
 #'
 #' # NOTE: dt_pivot is minimalist; prefer pivot_agg for custom lambdas & wide reshaping
 #'
-# dt_pivot <- function(data, groups = character(), values = character(), funs = c("sum")) {
-#   requireNamespace("data.table", quietly = TRUE)
-#   DT <- data.table::as.data.table(data)
-# 
-#   # Map user-friendly names
-#   fun_map <- function(nm) switch(nm,
-#     count = "length",
-#     n_distinct = "uniqueN",
-#     nm
-#   )
-#   funs2 <- vapply(funs, fun_map, character(1))
-# 
-#   by_expr <- if (length(groups)) groups else NULL
-# 
-#   # Build j-expression list, naming as fn_col
-#   j_list <- list()
-#   for (v in values) {
-#     for (fn in funs2) {
-#       # expression: fn(v)
-#       j_list[[paste0(fn, "_", v)]] <- substitute(FN(V), list(FN = as.name(fn), V = as.name(v)))
-#     }
-#   }
-#   # If only count requested and no values, count rows per group
-#   if (!length(values) && any(funs2 == "length")) {
-#     j_list[["count_rows"]] <- quote(length(.I))
-#   }
-# 
-#   res <- DT[, j_list, by = by_expr]
-#   data.table::setDF(res)
-#   res
-# }
+dt_pivot <- function(data, groups = character(), values = character(), funs = c("sum")) {
+  requireNamespace("data.table", quietly = TRUE)
+  DT <- data.table::as.data.table(data)
+
+  # Map user-friendly names
+  fun_map <- function(nm) switch(nm,
+    count = "length",
+    n_distinct = "uniqueN",
+    nm
+  )
+  funs2 <- vapply(funs, fun_map, character(1))
+
+  by_expr <- if (length(groups)) groups else NULL
+
+  # Build j-expression list, naming as fn_col
+  j_list <- list()
+  for (v in values) {
+    for (fn in funs2) {
+      # expression: fn(v)
+      j_list[[paste0(fn, "_", v)]] <- substitute(FN(V), list(FN = as.name(fn), V = as.name(v)))
+    }
+  }
+  # If only count requested and no values, count rows per group
+  if (!length(values) && any(funs2 == "length")) {
+    j_list[["count_rows"]] <- quote(length(.I))
+  }
+
+  res <- DT[, j_list, by = by_expr]
+  data.table::setDF(res)
+  res
+}

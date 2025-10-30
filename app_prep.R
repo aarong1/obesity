@@ -1,5 +1,12 @@
 
-pop <- read.fst('./populations/k20_population.fst')
+# pop <- read.fst('./populations/k20_population.fst')
+# pop <- slice_sample(pop, n=50000)
+# write.fst(pop,'./populations/k5_population.fst')
+
+
+pop <- read.fst('./populations/k5_population.fst')
+
+
 
 
 pop <- pop |> 
@@ -28,33 +35,37 @@ pop <- pop |>
   mutate(qrisk_percentile = rank(qrisk_score)/max(rank(qrisk_score))) 
 
 
-# Create sample ECharts graphs
-sales_chart <- mtcars |> 
-  e_charts(mpg) |> 
-  e_line(cyl,legend = F, smooth = TRUE, name = "Sales Trend") |>
-  e_color("#3498db") |>
-  e_theme("walden") |>
-  e_tooltip(trigger = "axis") |>
-  e_title("Sales Performance", left = "center", textStyle = list(fontSize = 14)) |>
-  e_grid(left = "10%", right = "10%", top = "20%", bottom = "15%") 
-
-revenue_chart <- mtcars |> 
-  e_charts(wt) |> 
-  e_scatter(hp, qsec,legend = F, scale = e_scale, name = "Revenue vs Growth") |>
-  e_color("#e74c3c") |>
-  e_theme("walden") |>
-  e_tooltip() |>
-  e_title("Revenue Analysis", left = "center", textStyle = list(fontSize = 14)) |>
-  e_grid(left = "10%", right = "10%", top = "20%", bottom = "15%")
-
-performance_chart <- data.frame(
-  category = c("Q1", "Q2", "Q3", "Q4"),
-  value = c(120, 200, 150, 300)
-) |>
-  e_charts(category) |>
-  e_bar(value, name = "Performance",legend = F) |>
-  e_color("#27ae60") |>
-  e_theme("walden") |>
-  e_tooltip(trigger = "axis") |>
-  e_title("Quarterly", left = "center", textStyle = list(fontSize = 12)) |>
-  e_grid(left = "15%", right = "10%", top = "20%", bottom = "15%")
+metric_card <- function( top ='top', 
+                         change = 'change', 
+                         text ='text',
+                         change_icon =  '',
+                         color = 'red',
+                         opacity='opacity-50'){
+  
+  change_class = if(change_icon=='negative'){  "fa-arrow-down me-1"
+  }else if(change_icon=='negative'){ "fa-arrow-up me-1"
+  }else{''}
+  
+  color_class = case_when(color == '#8F00FF' ~ 'theme-purple',
+                          color == 'teal' ~ 'theme-teal',
+                          color == 'steelblue' ~ 'theme-teal',
+                          
+                          
+                          color == '#dc3545' ~ 'theme-red', 
+                          color == 'mediumseagreen' ~ 'theme-green'
+  )
+  
+  
+  div(class = paste("grid-item grid-item--small",opacity),
+      div(class = "grid-item-content",
+          div(class = "metric-card",
+              #tags$i(class = "fas fa-external-link-alt fa-2x mb-3", style = "color: #dc3545;"),
+              div(class = "metric-value", style = paste("color:",color), format(top,big.mark = ',',digits=3)),
+              div(class = "metric-label", text),
+              div(class = paste("metric-change", change_icon),
+                  tags$i(class = change_class, change)
+              )
+          )
+      )
+  )
+}

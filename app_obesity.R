@@ -1,32 +1,43 @@
-# ============================================================================
-# PACKERY DASHBOARD APP - CLICK AND EXPAND VERSION
-# ============================================================================
-# Interactive dashboard with click-to-expand widgets, metrics, and charts
 
+
+library(htmltools)
 library(shiny)
 library(echarts4r)
 library(bslib)
 library(leaflet)
 library(reactable)
 library(fst)
+library(tidyverse)
+library(sf)
+library(profvis)
+# load(".RData")
 
-# source('modules/pivot_module/pivottable.R')
-# source('modules/pivot_module/pivottable_module.R')
-# source('modules/chart_update_module/chart_update_module.R')
-# source('modules/intervention_module/intervention_module.R')
+# rm(past_populations,
+#    instantiate_base_pop,
+#    default_fracture4_female,
+#    th,
+#    test_poopulation,
+#    teset_population,stroke_incidence,
+#    population_w_established_prevalence,new_year_pop,wrapping_examples_in_function)
+# rm(list=ls())
+print(paste('running','/pivottable.R'));# source('modules/pivot_module/pivottable.R')
+print(paste('running','/pivottable_module.R'));source('modules/pivot_module/pivottable_module.R')
+print(paste('running','/chart_update_module.R'));# source('modules/chart_update_module/chart_update_module.R')
+print(paste('running','/intervention_module.R'));source('modules/intervention_module/intervention_module.R')
+print(paste('running','app_prep.R'));source('app_prep.R')
+# print(paste('running','pages_prep_geo.R'));source('pages_prep_geo.R')
 
-
-# source('app_prep.R')
-
-# source('pages_prep_geo.R')
-# source('pages_prep.R')
-# source('obesity_causes.R')
-# source('comorbidity.R')
-# source('risk_stratification.R')
-# source('deprivation.R')
-# source('tables.R')
-# source("bed_days_estimate.R")
-# source("sick_days_estimate.R")
+load( file = "data/csv_pts_wgs84.RData") #csv_pts_wgs84
+print(paste('running','pages_prep.R'));source('pages_prep.R')
+print(paste('running','obesity_causes.R'));source('obesity_causes.R')
+print(paste('running','comorbidity.R'));source('comorbidity.R')
+print(paste('running','risk_stratification.R'));source('risk_stratification.R')
+print(paste('running','deprivation.R'));source('deprivation.R')
+# print(paste('running','tables.R'));# source('tables.R')
+print(paste('running','bed_days_estimate.R'));source("bed_days_estimate.R")
+print(paste('running','sick_days_estimate.R'));source("sick_days_estimate.R")
+print(paste('running','infographics.R'));source('infographics.R')
+#print(paste('running','obesity_prevalence_tables.R'));source('obesity_prevalence_tables.R')
 
 graph_wrapper <- function(..., header =NULL){
 
@@ -43,24 +54,14 @@ div(class = "grid-item grid-item--graph theme-green",
 )
 }
 
-theme_x <- readLines('theme.json')
+# theme_x <- readLines('theme.json')
 
 ui <- page_fluid( id = 'main-content',
                   theme = bs_theme(version = 5, font_scale = 0.8,
                                    bootswatch = 'litera',
                                    primary = '#2196F3'),
-                  e_theme_register(paste0(theme_x,collapse =""), name = "myTheme"),
-                  # (
-                  #   mtcars |> 
-                  #     head() |> 
-                  #     tibble::rownames_to_column('model') |> 
-                  #     e_charts(model) |> 
-                  #     e_pie(carb) |> 
-                  #     e_title('Pie chart') |> 
-                  #     e_theme(name = 'myTheme')
-                  # ),
-                  
-                  #titlePanel("Packery - Click and Expand Demo"),
+                  #e_theme_register(paste0(theme_x,collapse =""), name = "myTheme"),
+
                   
                   # Include external dependencies
                   tags$head(
@@ -71,7 +72,7 @@ ui <- page_fluid( id = 'main-content',
                           searchPseudoElements: true
                         }
                       </script>'),
-                      tags$script(src = "roma.js"),
+                      # tags$script(src = "roma.js"),
                       #includeScript("roma.js"),
                       HTML('<style>
 .dashboard-nav{
@@ -548,7 +549,7 @@ body {
                  shiny::tags$nav(
                    
                    class = "navbar fixed-top shadow-lg glass-card mb-3 p-2 rounded", # bg-light
-                   shiny::h4(  "Population Health ",
+                   shiny::h4(  "Population Health ", span(class = 'lead','Population Health Model'),
                                span(HTML('<h7><span class="badge rounded-pill text-white bg-opacity-75 bg-primary">Obesity', '' ,'</span></h7>')),
                                
                                HTML('<h7><span class="badge rounded-pill bg-opacity-75 bg-warning ">SPPG </span></h7>'),
@@ -644,293 +645,233 @@ body {
                               
                               # Dashboard Tab Content
                             
-              # div(id = "dashboard-tab", class = "tab-pane show active", #
-              #     div(class = "container-fluid", 
-              #         style = "padding-left: 17%;",
-              #         
-              #         fluidRow(
-              #                 # column(0, offset = 0,
-              #                 #      
-              #                 # ),
-              # 
-              #                 
-              #                 column(12,offset=0,
-              #                         
-              #                        # Tab Content Areas (controlled by left navigation)
-              #                       # div(id = "tab-content-container",
-              #                            
-              #                            # Dashboard Tab Content (default active)
-              #                                div(id = "grid", class = "grid",
-              #                            
-              # 
-              #                            div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
-              # 
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "BMI sex"
-              #                                        ),
-              #                                        metric_chart_bmi_sex
-              # 
-              # 
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "BMI age"
-              #                                        ),
-              #                                        metric_chart_bmi_age
-              #                                        
-              #                                        
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "Townsend Material Deprivation "
-              #                                        ),
-              #                                        comorbidities_bmi_townsend_extreme
-              #                                        
-              #                                        
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-green",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        # div(class = "card-header", style = "font-size: 0.5em;",
-              #                                        #     "Risk Correlations"
-              #                                        # ),
-              #                                        # performance_chart
-              #                                        
-              #                                        overweight_obese_sex
-              #                                    )
-              #                                )
-              #                            ),
-              #                            # div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "Townsend Material Deprivation "
-              #                                        ),
-              #                                        townsend_distribution_chart
-              #                                        
-              #                                        
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "Risk Stratification and Priority"
-              #                                        ),
-              #                                        qrisk_distribution_chart
-              #                                        
-              #                                        
-              #                                    )
-              #                                )
-              #                            ),
-              #                            div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                  div(class = "grid-item-content",
-              #                                      div(class = "chart-card",
-              #                                          div(class = "card-header",
-              #                                              "Comorbidities"
-              #                                          ),  comorbidities_plot
-              #                                          
-              #                                          
-              #                                      )
-              #                                  )
-              #                            ),
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                  div(class = "grid-item-content",
-              #                                      div(class = "chart-card",
-              #                                          div(class = "card-header",
-              #                                              "Depression and Obesity"
-              #                                          ),  depression_obesity_chart
-              #                                          
-              #                                          
-              #                                      )
-              #                                  )
-              #                            ),
-              #                            
-              #                            div(class = "grid-item grid-item--graph",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        # div(class = "card-header",
-              #                                        #     "Trust prevalence"
-              #                                        # ),
-              #                                        
-              #                                        
-              #                                        leaflet_trust
-              # 
-              #                                        
-              #                                        
-              #                                    )
-              #                                )
-              #                                
-              #                            ),
-              # 
-              #                            metic_card_prev_total_obesity,
-              #                            metric_card_total_bed_days,
-              #                            metric_card_total_episodes,
-              #                            metric_card_total_deaths_obesity,
-              #                            metric_card_YLL_total,
-              #                            metic_card_daly_total_obesity,
-              #                            metic_card_yld_total_obesity,
-              #                            metic_card_prev_cancer_obesity,
-              #                            metric_card_costs_total_obesity,
-              # 
-              #                            
-              #                            # Sales Performance Chart (Wide)
-              #                            div(class = "grid-item grid-item--graph theme-blue",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "Risk with BMI"
-              #                                        ),  risk_bmi
-              #                                         
-              #                                        
-              #                                    )
-              #                                )
-              #                            ),
-              #                            div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
-              #                            
-              #                            # Revenue Analysis Chart (Tall)
-              #                            div(class = "grid-item grid-item--graph theme-red",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            tags$i(class = "fas fa-chart-scatter me-2"),
-              # 
-              #                                            "Risk by Age",tags$small(class=' text-muted','1-yr prob of serious CVD')
-              #                                        ),
-              #                                        # revenue_chart
-              #                                        risk_prob_density_fn_age10
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            # Performance Chart (Small)
-              #                            div(class = "grid-item grid-item--graph theme-green",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        # div(class = "card-header", style = "font-size: 0.5em;",
-              #                                        #     "Risk Correlations"
-              #                                        # ),
-              #                                        # performance_chart
-              #                         
-              #                                        risk_graph
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-green",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "Risk Correlations"
-              #                                        ),
-              # 
-              #                                        BMI_parallel_chart
-              #                                    )
-              #                                )
-              #                            ),
-              #                          
-              # 
-              #                            
-              #                            
-              #                            div(class = "grid-item grid-item--graph theme-green",
-              #                                div(class = "grid-item-content",
-              #                                    div(class = "chart-card",
-              #                                        div(class = "card-header",
-              #                                            "BMI with Age"
-              #                                        ),
-              #                                        bmi_sya_age
-              #                                    )
-              #                                )
-              #                            ),
-              #                            
-              #                            
-              # 
-              #                            
-              #               
-              #                            div(class = "grid-item nav-card analytics bg-opacity-50",
-              #                                 div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'analytics-tab').addClass('active show')",
-              #                                     class = "nav-card-icon",  
-              #                                     icon("arrow-up-right-from-square")),
-              #                                 div(class = "nav-card-title", "Morbidity"),
-              #                                 div(class = "nav-card-description", "View detailed analytics"),
-              #                                           ),
-              #                            div(class = "grid-item nav-card settings bg-opacity-50",
-              #                                div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'geography-tab').addClass('active show')",
-              #                                    class = "nav-card-icon",  
-              #                                    icon("arrow-up-right-from-square")),
-              #                                div(class = "nav-card-title", "Geography"),
-              #                                div(class = "nav-card-description", "View detailed analytics"),
-              #                            ),
-              #                            div(class = "grid-item nav-card reports bg-opacity-50",
-              #                                div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'deprivation-tab').addClass('active show')",
-              #                                    class = "nav-card-icon",  
-              #                                    icon("arrow-up-right-from-square")),
-              #                                div(class = "nav-card-title", "Deprivation"),
-              #                                div(class = "nav-card-description", "View detailed analytics"),
-              #                            ),
-              #                                
-              #                       div(class = "grid-item",
-              #                            leafletOutput("custom")
-              #                       )
+              div(id = "dashboard-tab", class = "tab-pane show active", #
+                  div(class = "container-fluid",
+                      style = "padding-left: 17%;",
+
+                      fluidRow(
+
+                              column(12,offset=0,
+
+                                         # Dashboard Tab Content (default active)
+                                             div(id = "grid", class = "grid",
+
+
+                                         div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
+
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "BMI sex"
+                                                     ),
+                                                     metric_chart_bmi_sex
+
+
+                                                 )
+                                             )
+                                         ),
+
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "BMI age"
+                                                     ),
+                                                     metric_chart_bmi_age
+
+
+                                                 )
+                                             )
+                                         ),
+
+
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "Townsend Material Deprivation "
+                                                     ),
+                                                     comorbidities_bmi_townsend_extreme
+
+
+                                                 )
+                                             )
+                                         ),
+
+                                         div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
+
+                                         div(class = "grid-item grid-item--graph theme-green",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     #no card header
+
+                                                     overweight_obese_sex
+                                                 )
+                                             )
+                                         ),
                                          
-                                       
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "Townsend Material Deprivation "
+                                                     ),
+                                                     townsend_distribution_chart
+                                                 )
+                                             )
+                                         ),
+
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "Risk Stratification and Priority"
+                                                     ),
+                                                     qrisk_distribution_chart
+                                                 )
+                                             )
+                                         ),
+                                         div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
+
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                               div(class = "grid-item-content",
+                                                   div(class = "chart-card",
+                                                       div(class = "card-header",
+                                                           "Comorbidities"
+                                                       ),  comorbidities_plot
+                                                   )
+                                               )
+                                         ),
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                               div(class = "grid-item-content",
+                                                   div(class = "chart-card",
+                                                       div(class = "card-header",
+                                                           "Depression and Obesity"
+                                                       ),  depression_obesity_chart
+                                                   )
+                                               )
+                                         ),
+
+                                         div(class = "grid-item grid-item--graph",
+                                             div(class = "grid-item-content",
+                                                     leaflet_trust
+
+
+
+                                             )
+                                             )
+
+                                         ),
+                                         div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
                                          
-                      
-                                         
-                                         
-                                         # div(class = "grid-item grid-item--small theme-green",
-                                         #     
-                                         # echarts4rOutput('sales')),
-                               
-                                         # Customer Satisfaction
-                           
-                  #                    ) # End of dashboard grid
-                  #                )#, # End of dashboard tab content
-                  #             # column(2,
-                  #         ) # End of fluidRow
-                  # ) #end of fluid container 
-                  #                ),
+                                         metic_card_prev_total_obesity,
+                                         metric_card_total_bed_days,
+                                         metric_card_total_episodes,
+                                         metric_card_total_deaths_obesity,
+                                         metric_card_YLL_total,
+                                         metic_card_daly_total_obesity,
+                                         metic_card_yld_total_obesity,
+                                         metic_card_prev_cancer_obesity,
+                                         metric_card_costs_total_obesity,
+
+
+                                         # Sales Performance Chart (Wide)
+                                         div(class = "grid-item grid-item--graph theme-blue",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "Risk with BMI"
+                                                     ),  risk_bmi
+
+
+                                                 )
+                                             )
+                                         ),
+                                         div(class ='grid-item',style = 'border-width:5px 0px 0px 0px;width:70vw;border-style: solid;border-color: grey;'),
+
+                                         # Revenue Analysis Chart (Tall)
+                                         div(class = "grid-item grid-item--graph theme-red",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         tags$i(class = "fas fa-chart-scatter me-2"),
+
+                                                         "Risk by Age",tags$small(class=' text-muted','1-yr prob of serious CVD')
+                                                     ),
+                                                     # revenue_chart
+                                                     risk_prob_density_fn_age10
+                                                 )
+                                             )
+                                         ),
+
+                                         # Performance Chart (Small)
+                                         div(class = "grid-item grid-item--graph theme-green",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     # div(class = "card-header", style = "font-size: 0.5em;",
+                                                     #     "Risk Correlations"
+                                                     # ),
+                                                     # performance_chart
+
+                                                     risk_graph
+                                                 )
+                                             )
+                                         ),
+
+                                         div(class = "grid-item grid-item--graph theme-green",
+                                             div(class = "grid-item-content",
+                                                 div(class = "chart-card",
+                                                     div(class = "card-header",
+                                                         "BMI with Age"
+                                                     ),
+                                                     bmi_sya_age
+                                                 )
+                                             )
+                                         ),
+
+                                         div(class = "grid-item nav-card analytics bg-opacity-50",
+                                              div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'analytics-tab').addClass('active show')",
+                                                  class = "nav-card-icon",
+                                                  icon("arrow-up-right-from-square")),
+                                              div(class = "nav-card-title", "Morbidity"),
+                                              div(class = "nav-card-description", "View detailed analytics"),
+                                                        ),
+                                         div(class = "grid-item nav-card settings bg-opacity-50",
+                                             div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'geography-tab').addClass('active show')",
+                                                 class = "nav-card-icon",
+                                                 icon("arrow-up-right-from-square")),
+                                             div(class = "nav-card-title", "Geography"),
+                                             div(class = "nav-card-description", "View detailed analytics"),
+                                         ),
+                                         div(class = "grid-item nav-card reports bg-opacity-50",
+                                             div(onclick = "$('.tab-pane').removeClass('active show');$('#' + 'deprivation-tab').addClass('active show')",
+                                                 class = "nav-card-icon",
+                                                 icon("arrow-up-right-from-square")),
+                                             div(class = "nav-card-title", "Deprivation"),
+                                             div(class = "nav-card-description", "View detailed analytics"),
+                                         ),
+
+
+                                     ) # End of dashboard grid
+                                 )#, # End of dashboard tab content
+                              
+                         # ) # End of fluidRow
+                  ) #end of fluid container
+                                 ),
                                  
                                  # Analytics Tab Content
                                  div(id = "analytics-tab", class = "tab-pane active show ", #style = "width:100%",
                                      div(style = 'position:absolute;top:0;left:0;margin-inline:-12px;',#class = "container-fluid",
                                          div(
-                                          leafletOutput("custom_map1", width = '100px', height = '100px'),
-                                           
-                                          lrg_leaflet
+                                          leafletOutput("mymap", width = '100vw', height = '100vh'),
                                            ),
                                           ),
                                          
                                      div(class = 'glass-card p-3 me-3',
                                          style = 'position:absolute;top:12vh;right:0;height:75vh; overflow:scroll; background: rgba(255, 255, 255, 0.64)!important; /* 0.14 */',#class = "container-fluid",
                                          # style='top:15vh;width:15vw;z-index:1000',class = ' ms-3 p-4 d-flex flex-column display-absolute position-fixed left-0 shadow-sm glass-card'
-                                         div(class = 'd-flex flex-column gap-3',
+                                         div(class = 'd-flex flex-column gap-3 justify-content-between',
                                        div( span(class = '','BMI'),
                                          div(style = 'height:150px;width:200px;',echarts4rOutput('bmi_chart',height = 120,width=200))
                                          ),
@@ -943,11 +884,11 @@ body {
                                         div(span(class = '','Deprivation'),
                                          div(style = 'height:150px;width:200px;',echarts4rOutput('depriv_chart',height = 120,width=200))
                                          ),
-                                       div(span(class = '','Risk1'),
-                                           div(style = 'height:150px;width:200px;',echarts4rOutput('qrisk_chart1',height = 120,width=200))
+                                       div(span(class = '','Risk'),
+                                           div(style = 'height:250px;width:200px;',echarts4rOutput('qrisk_chart1',height = 220,width=200))
                                        ),
                                        div(span(class = '','Risk'),
-                                           div(style = 'height:150px;width:200px;',echarts4rOutput('qrisk_chart',height = 120,width=200))
+                                           div(style = 'height:200px;width:200px;',echarts4rOutput('qrisk_chart',height = 180,width=200))
                                        ),
                                        
                                         span( class='ms-4',
@@ -959,188 +900,170 @@ body {
                                          )
                                      )
 
-                                 )#,
-              #                    
-              #                    # Reports Tab Content  
-              #                    div(id = "reports-tab", class = " tab-pane active show",# style = "display: none;",
-              #                        div(class = "container-fluid", style = "padding-left: 20%;",
-              #                            h3("Population Health Data - Interactive Pivot Analysis"),
-              #                            p(class='lead',"Drag columns to create custom analysis. Use dimensions for grouping, measures for aggregation."),
-              #                            div(style = "font-size: 0.6rem !important;",
-              #                            # Pivot module UI
-              #                            pivot_module_ui("pivot_reports", 
-              #                                           data_names = c("sex", "age_risk", "county", "hsct", "bmi", 
-              #                                                         "Urban_status", "mdm_quintile_soa_name", "ethnicity",
-              #                                                         "stroke", "chd", "diabetes", "dementia", "heart_failure"),
-              #                                           fun_names = c("sum","mean","median","min","max","count","n_distinct")),
-              #                            
-              #                            # Results section
-              #                            # div(style = "margin-top: 30px;",
-              #                            #     #h4("Pivot Analysis Results"),
-              #                            #     div(id = "pivot_reports-table_container",
-              #                            #         reactableOutput("pivot_reports-table")
-              #                            #     ),
-              #                            #     )
-              #                            )
-              #                        )
-              #                    ),
-              #                    
-              #                    # Users Tab Content
-              #                    div(id = "deprivation-tab", class = "  tab-pane active show", style = " ",
-              #                        div(class = "container-fluid",   style = "padding-left: 17%;",
-              #                            h3("HotSpots "),
-              #                            # metric_card_obesity_days_lost_population,
-              #                            # metric_card_obesity_spells_population,
-              #                            # metric_card_obesity_cost_population,
-              #                            
-              #                            h6(class='lead', "Deprivation content will be displayed here when the Users nav item is clicked."),
-              #                            div(class="grid-5x5 mx-3 px-3",
-              #                                style= 'display: grid;
-              #                                grid-template-columns: repeat(5, 1fr);
-              #                                grid-auto-rows: 1fr;            /* equal heights within a fixed container */
-              #                                  gap: 12px;
-              #                                /* optional: fix container height so rows are equal; or remove and let content size */
-              #                                 ',
-              #                                group_echarts),
-              #                             #   ( e_charts(height = 300,width=300) |> 
-              #                             #  e_theme('walden')),
-              #                             # ( e_charts(height = 300,width=300) |> 
-              #                             #  e_theme('westeros')),
-              #                            
-              #                            # div(  
-              #                            #   e_theme_register(paste0(theme_x,collapse =""), name = "myTheme"),
-              #                            #   
-              #                            #     mtcars |> 
-              #                            #       head() |> 
-              #                            #       tibble::rownames_to_column('model') |> 
-              #                            #       e_charts(model) |> 
-              #                            #       e_pie(carb) |> 
-              #                            #       e_title('Pie chart') |> 
-              #                            #       e_theme(name = 'myTheme') 
-              #                            #     
-              #                            #   
-              #                            #   
-              #                            #   
-              #                            # )
-              #                            
-              #                        )
-              #                    ),
-              #                    
-              #                    # Revenue Tab Content
-              #                    div(id = "population-tab", class = "tab-pane show active ", style = " ",
-              #                        div(class = "container-fluid",   style = "padding-left: 17%;",
-              #                            h3(" Obesity Analytics"),
-              #                            
-              #                            p("Obesity analysis content will be displayed here when the Revenue nav item is clicked."),
-              #                            # deprivation_bmi_age_chart,
-              #                            # div(style='font-size:8px;',top_town_dep_table),
-              #                            # top_soa_dep_table,
-              #                            # 
-              #                            # top_dea_overweight_prev,
-              #                            # top_town_overweight_prev,
-              #                            div(class='d-flex flex-row flex-wrap gap-3',
-              #                            # echarts4rOutput('wald',height = 400,width=400),
-              #                            # echarts4rOutput('wester',height = 400,width=400),
-              #                            
-              #                            graph_wrapper(bar_map_morph),
-              #                            graph_wrapper(obesity_effects_treemap),
-              #                            graph_wrapper(obesity_effects_sunburst),
-              #                            
-              #                            
-              #                            graph_wrapper(metric_chart_bmi_sex),
-              #                            graph_wrapper(metric_chart_bmi_age),
-              #                            
-              #                            graph_wrapper(depression_obesity_chart),
-              #                            graph_wrapper(pm25g_urban_chart),
-              #                            
-              #                            graph_wrapper(townsend_distribution_chart),
-              #                            graph_wrapper(qrisk_distribution_chart),
-              #                            
-              #                            graph_wrapper(comorbidities_plot),
-              #                            graph_wrapper(metric_chart_bmi_age),
-              #                            graph_wrapper(metric_chart_bmi_sex),
-              #                            graph_wrapper(income_plot),
-              #                            graph_wrapper(employment_plot),
-              #                            graph_wrapper(NRA_plot),
-              #                            graph_wrapper(HSCT_plot),
-              #                            
-              #                            graph_wrapper(hypertension_plot),
-              #                            graph_wrapper(af_plot),
-              #                            graph_wrapper(ethnicity_plot),
-              #                            graph_wrapper(pad_plot),
-              #                            graph_wrapper(ckd_plot),
-              #                            graph_wrapper(cholesterol_plot),
-              #                            graph_wrapper(smoke_plot),
-              #                            graph_wrapper(alcohol_plot),
-              #                            graph_wrapper(diet_plot),
-              #                            graph_wrapper(pa_plot)
-              #                            )
-              #                            
-              #                            )
-              #                        
-              #                    ),
-              # 
-              # div(id = "geography-tab", class = "tab-pane show active", style = " ",
-              #     div(class = "container-fluid",   style = "padding-left: 17%;",
-              #         h3("Geography Analytics"),
-              #         p(class = 'lead',"Geography analysis content will be displayed here when the Revenue nav item is clicked."),
-              #         graph_wrapper(geo_sunburst),
-              #         hr(),
-              #         graph_wrapper(geo_treemap)
-              #     )
-              # ),
-              #                    # Orders Tab Content
-              # div(id = "ObesityRisk-tab", class = "  tab-pane show active ", style = "w-max-100",
-              #     div( style = "padding-left: 17%;",
-              #         h3("Obesity Contributions to Obesity"),
-              #         p(class = 'lead', "Obesity Projections content will be displayed here when the Users nav item is clicked."),
-              #          div(class = "d-flex flex-row gap-3 flex-wrap",  
-              #         metric_cards_parks,
-              #         metric_cards_fast_food,
-              #         div(style = 'width:70vw',BMI_parallel_chart),
-              #         graph_wrapper(comorbidities_plot),
-              #         
-              #         graph_wrapper(depression_obesity_chart),
-              #         graph_wrapper(metric_chart_bmi_age),
-              #         graph_wrapper(metric_chart_bmi_sex),
-              #         graph_wrapper(income_plot),
-              #         graph_wrapper(diet_plot),
-              #         graph_wrapper(pa_plot)
-              #          )
-              #     )
-              # ),
-              # div(id = "lifestyle-tab", class = "  tab-pane show active ", style = " ",
-              #    div(style = "padding-left: 17%;",
-              #         h3("Lifestyle Dashboard"),
-              #         p("Deprivation content will be displayed here when the Users nav item is clicked."),
-              #        div(class = "d-flex flex-row flex-wrap gap-3",   
-              #         
-              #         h6('Incidence and prevalence attributable to obesity'),
-              #         metic_card_prev_total_obesity,
-              #         metic_card_inc_total_obesity,
-              #         h6('Graphs'),
-              #         graph_wrapper(deprivation_risk_by_bmi_chart),
-              #         graph_wrapper(comorbidities_curve_wo_0_or_1),
-              #         graph_wrapper(comorbidities_age),
-              #         graph_wrapper(comorbidities_bmi),
-              #         h6('Other'),
-              #         
-              #         metric_card_total_bed_days, 
-              #         metric_card_total_deaths_obesity, 
-              #         metric_card_YLL_total, 
-              #         metic_card_daly_total_obesity, 
-              #         metic_card_yld_total_obesity, 
-              #         metric_card_costs_total_obesity, 
-              #         metric_card_obesity_days_lost_obesity, 
-              #         metric_card_obesity_cost_obesity, 
-              #         
-              #         obesity_rr_table(obesity_rr_demo, p_obesity = 0.30),
-              #         prevalence_dw_table(morbidity_prev_dw_demo, show_yld = TRUE)
-              #     ))
-              # ),
-              # 
-              # # Revenue Tab Content
-              # div(id = "NorthernTrust-tab", class = "tab-pane show", style = " ",
+                                 ),
+
+                                 # Reports Tab Content
+                                 div(id = "reports-tab", class = " tab-pane active show",# style = "display: none;",
+                                     div(class = "container-fluid", style = "padding-left: 20%;",
+                                         h3("Population Health Data - Interactive Pivot Analysis"),
+                                         p(class='lead',"Drag columns to create custom analysis. Use dimensions for grouping, measures for aggregation."),
+                                         div(style = "font-size: 0.6rem !important;",
+                                         # Pivot module UI
+                                         pivot_module_ui("pivot_reports",
+                                                        data_names = c("sex", "age_risk", "county", "hsct", "bmi",
+                                                                      "Urban_status", "mdm_quintile_soa_name", "ethnicity",
+                                                                      "stroke", "chd", "diabetes", "dementia", "heart_failure"),
+                                                        fun_names = c("sum","mean","median","min","max","count","n_distinct")),
+
+                                         # Results section
+                                         # div(style = "margin-top: 30px;",
+                                         #     #h4("Pivot Analysis Results"),
+                                         #     div(id = "pivot_reports-table_container",
+                                         #         reactableOutput("pivot_reports-table")
+                                         #     ),
+                                         #     )
+                                         )
+                                     )
+                                 ),
+
+                                
+
+                             
+      
+                                 # Orders Tab Content
+              div(id = "ObesityRisk-tab", class = "  tab-pane show active ", style = "",
+                  div( style = "padding-left: 17%;",
+                      h3("Obesity Contributions to Obesity"),
+                      p(class = 'lead', "Factors leading to the cause of Obesity and often accompany it "),
+                      div(class = "d-flex flex-row gap-3 flex-wrap justify-content-center",
+                      div(class = "d-flex flex-column gap-3 flex-wrap justify-content-center",
+                      metric_cards_parks,
+                      metric_cards_fast_food),
+                      graph_wrapper(header = 'BMI in Income Quintiles', income_plot),
+                      graph_wrapper(header = 'Distribution of Modifiable Risk', comorbidities_plot),
+                      graph_wrapper(header = span(class='text-muted',
+                      'Higher BMI correlates with greater propensity for depression'),
+                      depression_obesity_chart)
+                      ),
+                  
+                      div(class = "d-flex flex-column gap-3 flex-wrap justify-content-center",
+                      div(style = 'width:70vw', class= 'grid-item p-5 m-5',BMI_parallel_chart )),
+                      
+                      div(class = "d-flex flex-row gap-3 flex-wrap justify-content-center",
+                          
+                      graph_wrapper(header = 'BMI Age', metric_chart_bmi_age),
+                      graph_wrapper(header = 'BMI Sex', metric_chart_bmi_sex),
+                      graph_wrapper(header = 'BMI and Diet Risk', diet_plot),
+                      graph_wrapper(header = 'BMI and Adequate Physical Activity', pa_plot)
+                      )
+                    )
+                ),
+              
+              div(id = "geography-tab", class = "tab-pane show active", style = " ",
+                  div(class = "container-fluid",   style = "padding-left: 14%", #;width:100%
+                      h3("Geography Analytics"),
+                      p(class = 'lead',"A supplement to the <a onclick= alert('hello')>analytics</a> showing the heirarchical 
+                        'hotspots'broken down by geographical, administrative or statistical areas"),
+                      div(class = " rounded-5 bg-light d-flex flex-row gap-2 justify-content-around",
+                          div(style = 'width:30vw;height:60vh;', class= 'grid-item p-1 m-3',
+                              div(class = "chart-card",
+                                    div(class = "card-header",# style = "font-size: 0.5em;",
+                                        'Investigate Hierachical Geography',
+                                  span(class = 'text-secondary',
+                                      icon('warning'),
+                                      'Due to the large data size involved, only most deprived and most prevalent Geographies are plotted.'
+                                        )
+                                    ),
+                              geo_sunburst)), 
+                              div(style = 'width:30vw;height:60vh;', class= 'grid-item p-1 m-3',
+                                  div(class = "chart-card",
+                                      
+                              div(class = "card-header",# style = "font-size: 0.5em;",
+                                     'Trust Level Obesity Prevalence',
+                                  span(class = 'text-bg-secondary',
+                                       icon('mouse'),'Use mouse to scroll to zoom in/out, click to transform'
+                                  )
+                                  )
+                                  ),
+                                  
+                              bar_map_morph
+                              )
+                              
+                      ),
+                      
+                      div(class = "rounded-5 bg-light d-flex flex-row gap-3 m-5 flex-wrap justify-content-centre",
+                          div(style = 'width:70vw', class= 'grid-item p-1 m-2',
+                          geo_treemap
+                          )
+                      )
+                  )
+              ),
+              
+              div(id = "population-tab", class = "tab-pane show active ", style = " ",
+                  div(class = "container-fluid",   style = "padding-left: 17%;",
+                      h3(" Obesity Analytics"),
+                      
+                      p(class = 'lead', "Analysis of Obesity dynamic in the Population"),
+                      div(class = "rounded-5 bg-light d-flex flex-row gap-3 flex-wrap justify-content-around",
+                          div(style = 'width:70vw', class= 'grid-item p-5 m-5',
+                              div(class = "card-header",# style = "font-size: 0.5em;",
+                                  'Prevalence of Obesity and Overweight with Deprivation by age',
+                                  span(class = 'text-bg-secondary',
+                                  'The gradient is neutral to positive, to varying degrees among age groups')
+                              ),
+                              deprivation_bmi_age_chart
+                              )
+                          ),
+
+                      br(),br(),br(),
+                      #h6('Top Obesity Towns by Prevalence'),
+                      br(),br(),br(),
+                      
+                      div(style='font-size:12px;',
+                          #formatted_table
+                      ),
+                      
+                      div(class='d-flex flex-row flex-wrap gap-3 justify-content-between',
+                          
+                          div(style = 'width:70vw',bar_map_morph),
+                          graph_wrapper(obesity_effects_treemap),
+                          graph_wrapper(obesity_effects_sunburst),
+                          
+                          
+                          graph_wrapper(metric_chart_bmi_sex),
+                          graph_wrapper(metric_chart_bmi_age),
+                          
+                          graph_wrapper(depression_obesity_chart),
+                          graph_wrapper(pm25g_urban_chart),
+                          
+                          graph_wrapper(townsend_distribution_chart),
+                          graph_wrapper(qrisk_distribution_chart),
+                          
+                          graph_wrapper(comorbidities_plot),
+                          graph_wrapper(metric_chart_bmi_age),
+                          graph_wrapper(metric_chart_bmi_sex),
+                          graph_wrapper(income_plot),
+                          graph_wrapper(employment_plot),
+                          graph_wrapper(NRA_plot),
+                          graph_wrapper(HSCT_plot),
+                          
+                          graph_wrapper(hypertension_plot),
+                          graph_wrapper(af_plot),
+                          graph_wrapper(ethnicity_plot),
+                          graph_wrapper(pad_plot),
+                          graph_wrapper(ckd_plot),
+                          graph_wrapper(cholesterol_plot),
+                          graph_wrapper(smoke_plot),
+                          graph_wrapper(alcohol_plot),
+                          graph_wrapper(diet_plot),
+                          graph_wrapper(pa_plot)
+                      )
+                  )
+              ),
+              
+              
+              
+              # div(id = "NorthernTrust-tab", class = "tab-pane active show", style = " ",
               #     div(class = "container-fluid",   style = "padding-left: 17%;",
               #         h3(" Northern Trust Analytics"),
               #         p("Obesity analysis content will be displayed here when the Revenue nav item is clicked."),
@@ -1153,90 +1076,136 @@ body {
               #         )
               #     )
               # ),
-              # div(id = "society-tab", class = "tab-pane show active", style = " ",
-              #     div(class = "container-fluid",   style = "padding-left: 17%;",
-              #         h3(" Society Analytics"),
-              #         p("Obesity analysis content will be displayed here when the socity nav item is clicked."),
-              #         tags$ul(tags$li('Cost'),
-              #                 tags$li('Sick days'),
-              #                 tags$li('Bed days'),
-              #                 tags$li('Avg LoS for a bed related morbidity'),
-              #         metric_card_nhs_obesity,
-              #         metric_card_society_obesity,
-              #         metric_card_inpatient_obesity,
-              #         metric_card_outpatient_obesity,
-              #         metric_card_AE_obesity,
-              #         metric_card_primary_care_obesity,
-              #         metric_card_med_obesity,
-              #         metric_card_medical_device_obesity,
-              #         metric_card_long_term_obesity,
-              #         metric_card_morbidity_obesity,
-              #         metric_card_mortality_obesity,
-              #         metric_card_informal_care_obesity,
-              #         hr(),
-              #         metric_card_obesity_days_lost_obesity,
-              #         metric_card_obesity_spells_obesity,
-              #         metric_card_obesity_cost_obesity
-              #         )
-              #     )
-              # ),
-              # 
-              # div(id = "scenarios-tab", class = "tab-pane ", style = " ",
-              #      div(#class = "container-fluid",
-              #       style = "padding-left: 17%;",
-              #         h3("scenarios Overview"),
-              #         p("scenarios overview content is coming soon"),
-              #       metric_card_total_bed_days,
-              #       metric_card_avg_w_mean_duration,
-              #       metric_card_avg_W_LOS_estimate,
-              #       metric_card_total_admissions,
-              #       metric_card_total_episodes,
-              #       metric_card_cancer_deaths_obesity,
-              #       metric_card_cvd_deaths_obeisty,
-              #       metric_card_total_deaths_obesity,
-              #       metric_card_resp_deaths_obesity,
-              #       metric_card_YLL_cancer,
-              #       metric_card_YLL_cvd,
-              #       metric_card_YLL_resp,
-              #       metric_card_YLL_total,
-              #       metic_card_daly_total_obesity,
-              #       metic_card_daly_resp_obesity,
-              #       metic_card_daly_cancer_obesity,
-              #       metic_card_daly_cvd_obesity,
-              #       metic_card_yld_total_obesity,
-              #       metic_card_yld_resp_obesity,
-              #       metic_card_yld_cancer_obesity,
-              #       metic_card_yld_cvd_obesity,
-              #       metic_card_prev_cancer_obesity,
-              #       metic_card_prev_cvd_obesity,
-              #       metic_card_prev_resp_obesity,
-              #       metic_card_inc_cancer_obesity,
-              #       metic_card_inc_cvd_obesity,
-              #       metic_card_inc_resp_obesity,
-              #       # prescriptions_table,
-              # 
-              #      )
-              # ),
-              # 
-              # div(id = "specify-tab", class = "tab-pane show active ", style = "",
-              #     div(#class = "container-fluid",
-              #         style = "padding-left: 17%;",
-              #         h3("Intervene "),
-              #         # In UI
-              #           intervention_module_ui("intervention1"),
-              # 
-              #         h5(class = 'lead mb-5 ',
-              #            "Simulate Interventions and innovative pathways to treat obesity by 
-              #            estimating the disease output before and after modulating population prevalence for obesity"),
-              #         actionButton(class='float-right pb-2 mb-3 me-5 pe-5',inputId = 'e','run',icon = icon('play')),
-              #         br(),
-              #         br(),
-              #         chartUpdateModuleUI("demo-chart"),
-              #         br(),br()
-              #         
-              #         #p("specify overview content will be displayed here when the Orders nav item is clicked.")
-              #     )
-              # )
+              
+              div(id = "lifestyle-tab", class = "  tab-pane show active ", style = " ",
+                 div(style = "padding-left: 17%;",
+                      h3("Lifestyle Dashboard"),
+                      p(class = 'lead',"Deprivation content will be displayed here when the Users nav item is clicked."),
+                      h6('Health Burden Attributable to obesity'),
+                     div(class = "d-flex flex-row flex-wrap gap-3 justify-content-between",
+                      metric_card(top = 'Health Metric','','',color='teal'),
+                      metic_card_prev_total_obesity,
+                      metic_card_inc_total_obesity,
+                      metric_card_YLL_total,
+                      metic_card_daly_total_obesity,
+                      metic_card_yld_total_obesity
+                      
+                      ),
+                      #h6('Resource'),
+                     div(class = "d-flex flex-row flex-wrap gap-3 justify-content-between",
+                         metric_card(top = 'Resource','','',color='Purple',opacity = 'opacity-75'),
+                         
+                     metric_card_total_bed_days,
+                     
+                     metric_card_costs_total_obesity,
+                     metric_card_obesity_days_lost_obesity,
+                     metric_card_obesity_cost_obesity
+                         
+                      ),
+                      # h6('Comorbidities'),
+                     div(class = "d-flex flex-row flex-wrap gap-3 justify-content-between",
+                      
+                      metric_card(top = 'Resource','','',color='purple',opacity = 'opacity-100'),
+                         
+                      graph_wrapper(header = span(div('BMI with deprivation'),
+                                                     span(class='text-muted','Positive Trend')),
+                                                     deprivation_risk_by_bmi_chart),
+                      graph_wrapper(comorbidities_curve_wo_0_or_1),
+                      graph_wrapper(comorbidities_age),
+                      graph_wrapper(comorbidities_bmi),
+          
+                      ),
+                 #     
+                 #     h6('Relative Risks'),
+                 # 
+                 #      obesity_rr_table(obesity_rr_demo, p_obesity = 0.30),
+                 # 
+                 # h6('Disability Weights'),
+                 # 
+                 #     prevalence_dw_table(morbidity_prev_dw_demo, show_yld = TRUE)
+                 
+                  )
+              ),
+              
+              # Users Tab Content
+              div(id = "deprivation-tab", class = "  tab-pane active show", style = " ",
+                  div(class = "container-fluid",   style = "padding-left: 15%;",
+                      h3("HotSpots "),
+                      
+                      h6(class='lead', "Deprivation content will be displayed here when the Users nav item is clicked."),
+                      div(class="grid-5x5 mx-3 px-3",
+                          style= 'display: grid;
+                                             grid-template-columns: repeat(5, 1fr);
+                                             grid-auto-rows: 1fr;            /* equal heights within a fixed container */
+                                               gap: 10px;
+                                             /* optional: fix container height so rows are equal; or remove and let content size */
+                                              ',
+                          group_echarts),
+                  )
+              ),
+
+            
+              
+              div(id = "society-tab", class = "tab-pane show active", style = " ",
+                  div(class = "container-fluid",   style = "padding-left: 17%;",
+                      h3(" Society"),
+                      p(class = 'lead', "Analysis on societal impact of Obesity"),
+                      # tags$ul(tags$li('Cost'),
+                      #         tags$li('Sick days'),
+                      #         tags$li('Bed days'),
+                      #         tags$li('Avg LoS for a bed related morbidity'),
+                      div(class = 'd-flex flex-row flex-wrap justify-content-center gap-3',
+                      metric_card_nhs_obesity,
+                      metric_card_society_obesity,
+                      metric_card_inpatient_obesity,
+                      metric_card_outpatient_obesity,
+                      metric_card_AE_obesity,
+                      metric_card_primary_care_obesity,
+                      metric_card_med_obesity,
+                      metric_card_medical_device_obesity,
+                      metric_card_long_term_obesity,
+                      metric_card_morbidity_obesity,
+                      metric_card_mortality_obesity,
+                      metric_card_informal_care_obesity),
+                      div(class = 'd-flex flex-row flex-wrap justify-content-center gap-3',
+                      metric_card_obesity_days_lost_obesity,
+                      metric_card_obesity_spells_obesity,
+                      metric_card_obesity_cost_obesity,
+                      metric_card_obesity_days_lost_population,
+                      metric_card_obesity_spells_population,
+                      metric_card_obesity_cost_population
+                      )
+                      )
+              ),
+
+              div(id = "scenarios-tab", class = "tab-pane active show", style = " ",
+                   div(
+                    style = "padding-left: 17%;",
+                      h3("Scenarios Overview"),
+                      p(class='lead',"Scenarios overview content is coming soon")
+                  
+
+                   )
+              ),
+
+              div(id = "specify-tab", class = "tab-pane show active ", style = "width:100vw",
+                  div(
+                      style = "padding-left: 17%;",
+                      h3("Intervene "),
+                      # In UI
+                        intervention_module_ui("intervention1"),
+
+                      h5(class = 'lead mb-5 ',
+                         "Simulate Interventions and innovative pathways to treat obesity by
+                         estimating the disease output before and after modulating population prevalence for obesity"),
+                      actionButton(class='float-right pb-2 mb-3 me-5 pe-5',inputId = 'e','run',icon = icon('play')),
+                      br(),
+                      br(),
+                      #chartUpdateModuleUI("demo-chart"),
+                      br(),
+                      br()
+                  )
+              )
        ) # End of tab-content-container
                         
                           ), # Close content-area
@@ -1391,8 +1360,8 @@ $(document).ready(function() {
     
     // setTimeout(function() {
     //  $('.tab-pane').removeClass('active show')
-    //  $('#' + 'analytics-tab').addClass('active show')
-    // }, 5000);
+    //  $('#' + 'specify-tab').addClass('active show')
+    // }, 1000);
      
       setTimeout(function() {
           $('.grid').packery();
@@ -1407,8 +1376,8 @@ $(document).ready(function() {
                                  <footer class="dashboard-footer">
                                  <div class="footer-content">
                                  <div class="footer-info">
-                                 <p>&copy;  Obesity - Data runs of the Population health Models microsimulation, data are estimates. 
-                                 Data is updated periodically when underlying datasets are released from their respective providers </p>
+                                 <p>&copy;  Obesity - Data runs of the Population health Models microsimulation, data are estimates </p>
+                                 <p>Data is updated periodically when underlying datasets are released from their respective providers </p>
                                  </div>
                                  <div class="footer-links">
                                  <p> Public Health Agency - Population Health Model 2025  </p>
@@ -1473,9 +1442,14 @@ $(document).ready(function() {
 # ============================================================================
 server <- function(input, output, session) {
 
-
-
-result <- intervention_module_server("intervention1", reactive({runButton()}))          
+observeEvent(input$`intervention1-draggable_data`,
+             {print(input$`intervention1-draggable_data`)}
+             )
+  observeEvent(input$draggable_data,
+               {print(input$draggable_data)}
+  )
+  # Intervention module server ----
+result <- intervention_module_server("intervention1", reactive({runButton()}))
 
 observe({
   print(result)}
@@ -1483,75 +1457,73 @@ observe({
 
   # Chart update module server ----
   runButton <- reactiveVal(NULL)
-  
+
   observeEvent(input$e,{
     runButton(input$e+1)
     })
-  
-  simulation_state <- chartUpdateModuleServer("demo-chart", reactive({runButton()}))
-  
-  observe({
-    print(simulation_state)
-    })
-  
+
+  # simulation_state <- chartUpdateModuleServer("demo-chart", reactive({runButton()}))
+
+  # observe({
+  #   print(simulation_state)
+  #   })
+
   # Reactive data source for pivot module
   population_data <- reactive({
     # df <- read.csv("./populations/test_population.csv", stringsAsFactors = FALSE)
     df <- read.fst('./populations/k20_population.fst')
-    
+
     # Convert logical health conditions to factors for better pivoting
-    health_cols <- c("stroke", "chd", "diabetes", "dementia", "heart_failure", 
+    health_cols <- c("stroke", "chd", "diabetes", "dementia", "heart_failure",
                      "atrial_fibrillation", "hypertension", "chronic_kidney_disease")
     df[health_cols] <- lapply(df[health_cols], function(x) factor(ifelse(x, "Yes", "No")))
-    
+
     # Ensure proper factor ordering for age groups
     if("age_risk" %in% names(df)) {
       df$age_risk <- factor(df$age_risk, levels = c("0-15", "16-34", "35-44", "45-54", "55-64", "65-74", "75-110"))
     }
-    
+
     # Convert BMI to factor with proper ordering
     if("bmi" %in% names(df)) {
       df$bmi <- factor(df$bmi, levels = c("normal", "overweight", "obese"))
     }
-    
+
     return(df)
   })
-  
+
   # Pivot module server
   pivot_result <- pivot_module_server("pivot_reports", data = population_data)
-  
-  
-  output$sales <- renderEcharts4r({
-    sales_chart
-  })
-  
-  output$custom <- renderLeaflet({
-    
-    leaflet(elementId = 'map1') |> 
-      addTiles() |> 
-      setView(lng = -5.9576, lat = 54.904, zoom = 8) 
-    
-    })
-      
-  output$custom_map1 <- renderLeaflet({
-    
+
+
+
+
+  # output$custom <- renderLeaflet({
+  # 
+  #   leaflet(elementId = 'map1') |>
+  #     addTiles() |>
+  #     setView(lng = -5.9576, lat = 54.904, zoom = 8)
+  # 
+  #   })
+
+  output$mymap <- renderLeaflet({
+
     lrg_leaflet
-    
+
   })
-  
+
   map_filtered_chart <- reactiveVal(pop)
-  
+
   debounced_bounds <- reactive({
     input$mymap_bounds
-  }) |> 
+  }) |>
     debounce(4000)   # 4000 milliseconds = 4 seconds
-  
+
   # 2. Replace input$mymap_bounds with debounced_bounds() in your observeEvent
   observeEvent(debounced_bounds(), {
     req(debounced_bounds())
-
+    print('printing bounds')
     print(input$mymap_bounds)
-    
+
 
     bbox_poly <- st_as_sfc(
       st_bbox(c(
@@ -1561,25 +1533,30 @@ observe({
         ymax = input$mymap_bounds$north
       ), crs = 4326)
     )
+
+    req(input$mymap_bounds$west != input$mymap_bounds$west)
+    req(input$mymap_bounds$north != input$mymap_bounds$south)
     
     inside_mat <- st_within(csv_pts_wgs84, bbox_poly, sparse = FALSE)
+    #st_within(csv_pts_wgs84, x, sparse = FALSE)
     
     csv_pts_wgs84 <- csv_pts_wgs84 |>
       mutate(in_bbox = as.logical(inside_mat[, 1]))
-    
+
     dz_in_bbox <- csv_pts_wgs84 |>
       filter(in_bbox)
-    
-    dz_in_bbox$DZ2021_code 
-    dz_in_bbox$DZ2021_name 
-    
-    print(head(pop))
-    print(head(dz_in_bbox$DZ2021_code))
-    print(head(map_filtered_chart()))
-    map_filtered_chart(pop |> filter(dz_id %in% dz_in_bbox$DZ2021_code ))
+
+    # dz_in_bbox$DZ2021_code
+    # dz_in_bbox$DZ2021_name
+    # 
+    # print(head(pop))
+    # print(head(dz_in_bbox$DZ2021_code))
+    # print(head(map_filtered_chart()))
+    map_filtered_chart(pop |> 
+                         filter(dz_id %in% dz_in_bbox$DZ2021_code ))
   })
-  
-  
+
+
   output$group_echarts <- renderEcharts4r({
     map_filtered_chart() |>
       group_by(Urban_status) |>
@@ -1590,14 +1567,6 @@ observe({
       e_bar(count) |>
       e_title("Population by Urban Status") |>
       e_theme('walden')
-  })
-  
-  # --- helpers --------------------------------------------------------------
-  filtered_df <- reactive({
-    req(map_filtered_chart())
-    df <- map_filtered_chart()
-    validate(need(nrow(df) > 10, "less than 10 samples in current map selection."))
-    df
   })
 
   
@@ -1610,13 +1579,13 @@ observe({
       #echarts4r::e_title("BMI distribution (filtered)") |>
       echarts4r::e_tooltip(trigger = "axis",confine =T) |>
       e_legend(show=F) |>
-      e_color(c('#2AFEB7','yellow')) |> 
-      
+      e_color(c('#2AFEB7','yellow')) |>
+
       #echarts4r::e_x_axis(name = "BMI band") |>
       echarts4r::e_y_axis(name = "People") |>
       echarts4r::e_grid(top = 40, right = 20, bottom = 40, left = 50)
   })
-  
+
   output$age_chart <- renderEcharts4r({
     dat <- count(map_filtered_chart(),age20)##age_counts(); validate(need(nrow(dat) > 0, "Age not available."))
     dat |>
@@ -1624,62 +1593,63 @@ observe({
       echarts4r::e_bar(n, name = "Count") |>
       #echarts4r::e_title("Age bands (filtered)") |>
       echarts4r::e_tooltip(trigger = "axis",confine =T) |>
-      e_legend(show=F) |> 
+      e_legend(show=F) |>
       #echarts4r::e_x_axis(name = "Age band") |>
       echarts4r::e_y_axis(name = "People") |>
-      e_legend(show=F) |> 
-      e_theme('walden') |> 
-      #e_color(c('#2AFEB7','yellow')) |> 
+      e_legend(show=F) |>
+      e_theme('walden') |>
+      #e_color(c('#2AFEB7','yellow')) |>
       echarts4r::e_grid(top = 40, right = 20, bottom = 40, left = 50)
   })
-  
+
   output$sex_chart <- renderEcharts4r({
     dat <- count(map_filtered_chart(),sex)#sex_counts(); validate(need(nrow(dat) > 0, "Sex not available."))
     dat |>
-      group_by(sex) |> 
+      group_by(sex) |>
       echarts4r::e_charts(sex,height = '150',width='200') |>
       echarts4r::e_bar(n) |>
-      e_legend(show=F) |> 
+      e_legend(show=F) |>
       #echarts4r::e_title("Sex split (filtered)", textStyle = list( fontSize=9)) |>
-      echarts4r::e_tooltip(formatter = "{b}: {c} ({d}%)",confine = T) |> 
-      #e_color(c('#2AFEB7','yellow')) |> 
-      echarts4r::e_grid(top = 40, right = 20, bottom = 40, left = 50) |> 
+      echarts4r::e_tooltip(formatter = "{b}: {c} ({d}%)",confine = T) |>
+      #e_color(c('#2AFEB7','yellow')) |>
+      echarts4r::e_grid(top = 40, right = 20, bottom = 40, left = 50) |>
       e_text_style(
         #color = "white",
         #fontStyle = "italic"
         textStyle = list(fontSize = 9)
-      ) |> 
+      ) |>
       e_theme('roma')
   })
-  
+
   output$depriv_chart <- renderEcharts4r({
     dat <- count(map_filtered_chart(), mdm_quintile_soa_name)#depriv_counts(); validate(need(nrow(dat) > 0, "Deprivation not available."))
     # Pick the x column dynamically
    # xcol <- if ("mdm_quintile_soa_name" %in% names(dat)) "mdm_quintile_soa_name" else "mdm_quintile_soa"
-    
+
     dat |>
       mutate(mdm_quintile_soa_name = factor(mdm_quintile_soa_name,
                                             levels = c("Most Deprived","Quintile 2","Quintile 3","Quintile 4","Least Deprived"))) |>
-      arrange(mdm_quintile_soa_name) |> 
+      arrange(mdm_quintile_soa_name) |>
       echarts4r::e_charts(mdm_quintile_soa_name,height = '150',width='200') |>
       echarts4r::e_bar(n, name = "Count") |>
-      e_legend(show = F) |> 
+      e_legend(show = F) |>
       #echarts4r::e_title("Deprivation quintile (filtered)",textStyle = list( fontSize=9)) |>
       #echarts4r::e_tooltip(trigger = "axis") |>
       echarts4r::e_tooltip(trigger = "axis",confine =T) |>
-      # e_color(c('#2AFEB7','yellow')) |> 
-      
+      # e_color(c('#2AFEB7','yellow')) |>
+
       #echarts4r::e_x_axis(name = "MDM quintile") |>
       echarts4r::e_y_axis(name = "People") |>
       echarts4r::e_grid(top = 40, right = 20, bottom = 40, left = 50)
   })
-  
+
   output$qrisk_chart <- renderEcharts4r({
-      dat <- map_filtered_chart()
+      dat <- map_filtered_chart() |> 
+        slice_sample(n = 500)
 
       y_max <- ceiling(max(dat$qrisk_score, na.rm = TRUE))
       y_max <- max(y_max, 1)  # ensure sensible upper bound
-      
+
       dat |>
         echarts4r::e_charts(id,height = '150',width='200') |>
         # points (strip/list)
@@ -1702,18 +1672,19 @@ observe({
           axisLabel = list(formatter = "{value}%")
         ) |>
         echarts4r::e_x_axis(show = FALSE) |>
-        echarts4r::e_grid(top = 40, right = 16, bottom = 40, left = 60) |> 
+        echarts4r::e_grid(top = 40, right = 16, bottom = 40, left = 60) |>
         e_theme('walden')
-      
+
   })
-  
-  
+
+
   output$qrisk_chart1 <- renderEcharts4r({
-    dat <- map_filtered_chart()
+    dat <- map_filtered_chart()|>
+      slice_sample(n = 500)
 
     dat |>
       filter(age>25) |>
-      filter(is.na(bmi)) |>
+      filter(!is.na(bmi)) |>
       group_by(bmi) |>
       e_charts(height=290) |>
       e_density(qrisk_percentile,breaks=5) |>
@@ -1726,19 +1697,19 @@ observe({
       e_theme('walden')
 
   })
-  
-  
+
+
   # --- headline card (optional) --------------------------------------------
   output$headline_count <- renderText({
-    
+
     format(nrow(map_filtered_chart())*10, big.mark = ",")
   })
 
-  
+
   output$qrisk_average <- renderText({
     signif(digits = 2,mean(map_filtered_chart()$qrisk_percentile))
   })
-  
+
 }
 
 

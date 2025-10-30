@@ -342,24 +342,27 @@ metric_card <- function( top ='top',
                          text ='text',
                          change_icon =  '',
                          color = 'red',
-                         opacity='bg-opacity-50'){
+                         opacity='opacity-50'){
   
 change_class = if(change_icon=='negative'){  "fa-arrow-down me-1"
 }else if(change_icon=='negative'){ "fa-arrow-up me-1"
 }else{''}
 
-color_class = case_when(color == 'purple' ~ 'theme-purple',
+color_class = case_when(color == '#8F00FF' ~ 'theme-purple',
                         color == 'teal' ~ 'theme-teal',
-                          color == 'red' ~ 'theme-red', 
-                        color == 'green' ~ 'theme-green'
+                        color == 'steelblue' ~ 'theme-teal',
+                        
+                        
+                          color == '#dc3545' ~ 'theme-red', 
+                        color == 'mediumseagreen' ~ 'theme-green'
 )
 
     
-div(class = paste("grid-item grid-item--small",color_class,opacity),
+div(class = paste("grid-item grid-item--small",opacity),
     div(class = "grid-item-content",
         div(class = "metric-card",
             #tags$i(class = "fas fa-external-link-alt fa-2x mb-3", style = "color: #dc3545;"),
-            div(class = "metric-value", style = "color: #dc3545;", format(top,big.mark = ',',digits=3)),
+            div(class = "metric-value", style = paste("color:",color), format(top,big.mark = ',',digits=3)),
             div(class = "metric-label", text),
             div(class = paste("metric-change", change_icon),
                 tags$i(class = change_class, change)
@@ -472,12 +475,12 @@ metric_card_mortality_obesity <- metric_card(costs_2020_cvd$obesity_costs[10],'C
 metric_card_informal_care_obesity <- metric_card(costs_2020_cvd$obesity_costs[11],'CVD','Informal Care','Due to obesity')
 
 #Lost Labour
-metric_card_obesity_days_lost_obesity <- metric_card(obesity_days_lost, '', 'civil service obesity_days_lost','Due to obesity')
-metric_card_obesity_spells_obesity <- metric_card(obesity_spells, '', 'civil service obesity_spells','Due to obesity')
-metric_card_obesity_cost_obesity <- metric_card(obesity_cost, '', 'civil service obesity_cost','Due to obesity')
+metric_card_obesity_days_lost_obesity <- metric_card(obesity_days_lost, 'Obesity', 'NICS Days Lost','Due to obesity')
+metric_card_obesity_spells_obesity <- metric_card(obesity_spells, 'Obesity', 'NICS Obesity Spells','Long and short term')
+metric_card_obesity_cost_obesity <- metric_card(obesity_cost, 'Obesity', 'NICS Obesity Cost','£')
 
-metric_card_obesity_days_lost_population <- metric_card(obesity_days_lost * 32,'','population obesity_days_lost','Due to obesity')
-metric_card_obesity_spells_population <- metric_card(obesity_spells * 32,'','population obesity_spells','Due to obesity')
-metric_card_obesity_cost_population <- metric_card(obesity_cost * 32,'','population obesity_cost','Due to obesity')
+metric_card_obesity_days_lost_population <- metric_card(obesity_days_lost * 32,'Obesity','Total Days Lost','Due to obesity',color='teal')
+metric_card_obesity_spells_population <- metric_card(obesity_spells * 32,'Obesity','Population Spells Off' ,'Long and short term',color='teal')
+metric_card_obesity_cost_population <- metric_card(obesity_cost * 32,'Obesity','Population Cost','£',color='teal')
 
 

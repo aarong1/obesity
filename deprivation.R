@@ -1,30 +1,27 @@
 library(fst)
 
-# pop <- read.fst('populations/k20_population.fst')
-# source('app_prep.R')
-
-pop |> 
-  group_by(dz_id) |> 
-  summarise(big = sum(bmi %in% c('overweight','obese')),
-            tot = n(),
- dep=mean(custom_townsend_rank)
-#dep  = mean(mdm_rank)
-) |> 
-  filter(tot>10) |> 
-  mutate(prev = big/tot) |> 
-  ggplot(aes(prev,dep))+
-  geom_point(alpha=0.4)+
-  geom_smooth(method='lm')
+# pop |> 
+#   group_by(dz_id) |> 
+#   summarise(big = sum(bmi %in% c('overweight','obese')),
+#             tot = n(),
+#  dep=mean(custom_townsend_rank)
+# #dep  = mean(mdm_rank)
+# ) |> 
+#   filter(tot>10) |> 
+#   mutate(prev = big/tot) |> 
+#   ggplot(aes(prev,dep))+
+#   geom_point(alpha=0.4)+
+#   geom_smooth(method='lm')
 
 
 deprivation_bmi_age_chart <- pop |> 
-  group_by(dz_id,age20) |> 
+  group_by(sdz_code,age20) |> 
   summarise(big = sum(bmi %in% c('overweight','obese')),
             tot = n(),
             dep=mean(custom_townsend_rank)
             #dep  = mean(mdm_rank)
   ) |> 
-  filter(tot>20) |> 
+  filter(tot>10) |> 
   
   mutate(prev = big/tot) |> 
   ungroup() |> 
@@ -64,15 +61,18 @@ top_town_overweight_prev <- pop |>
             overweight = sum(bmi == 'overweight',na.rm=T),
             obese = sum(bmi == 'obese',na.rm = T),
             tot = n(),
-            dep=mean(custom_townsend_rank)
-            #dep  = mean(mdm_rank)
+            HSCT = first(HSCT),
+            dep = mean(custom_townsend_rank),
+            town  = mean(custom_townsend_score_dz)
   ) |> 
-  filter(tot>10) |> 
+  filter(tot>30) |> 
   mutate(big_prev = big/tot,
          obese_prev = obese/tot,
          overweight_prev = overweight/tot) |> 
-  arrange(desc(big_prev))
+  arrange(desc(big_prev)) |> 
+  head(20)
 
+# x=top_town_overweight_prev
 
 pop |> 
   group_by( Urban_mixed_rural_status) |> 
@@ -132,7 +132,6 @@ top_soa_dep_table <- pop |>
             tot = n(),
             dep=mean(mdm_rank),
             townsend=mean(custom_townsend_score_dz),
-            
             DEA = first(DEA2014_name),
             #first(HSCT),
             town = first(SETTLEMENT2015_name),
@@ -143,11 +142,17 @@ top_soa_dep_table <- pop |>
   arrange(desc(dep)) |> 
   head(20)
 
+############################
+############################
+############################
 
-deprivation_bmi_age_chart
-top_town_dep_table
-top_soa_dep_table
+# deprivation_bmi_age_chart
+# top_town_dep_table
+# top_soa_dep_table
+# top_dea_overweight_prev
+# top_town_overweight_prev
 
-top_dea_overweight_prev
-top_town_overweight_prev
+############################
+############################
+############################
 

@@ -48,34 +48,34 @@ to_wgs84 <- function(df_xy, x_col = "X", y_col = "Y") {
 # Convert to WGS84 (auto-detect between EPSG:29902 and EPSG:27700)
 csv_pts_wgs84 <- to_wgs84(csv)
 
-
+save(csv_pts_wgs84, file = "data/csv_pts_wgs84.RData")
 # Example values you gave:
-bbox_list <- list(
-  north = 56.0965,
-  east  = -5.139928,
-  south = 53.52065,
-  west  = -10.26505
-)
-
-bbox_poly <- st_as_sfc(
-  st_bbox(c(
-    xmin = bbox_list$west,
-    ymin = bbox_list$south,
-    xmax = bbox_list$east,
-    ymax = bbox_list$north
-  ), crs = 4326)
-)
+# bbox_list <- list(
+#   north = 56.0965,
+#   east  = -5.139928,
+#   south = 53.52065,
+#   west  = -10.26505
+# )
+# 
+# bbox_poly <- st_as_sfc(
+#   st_bbox(c(
+#     xmin = bbox_list$west,
+#     ymin = bbox_list$south,
+#     xmax = bbox_list$east,
+#     ymax = bbox_list$north
+#   ), crs = 4326)
+# )
 
 #------------------------------------------------------------
 # 5) Flag points inside the bbox and filter them
 #------------------------------------------------------------
-inside_mat <- st_within(csv_pts_wgs84, bbox_poly, sparse = FALSE)
-csv_pts_wgs84 <- csv_pts_wgs84 |>
-  mutate(in_bbox = as.logical(inside_mat[, 1]))
-
-csv_in_bbox <- csv_pts_wgs84 |>
-  filter(in_bbox)
-
-# Quick peek
-csv_pts_wgs84
-csv_in_bbox
+# inside_mat <- st_within(csv_pts_wgs84, bbox_poly, sparse = FALSE)
+# csv_pts_wgs84 <- csv_pts_wgs84 |>
+#   mutate(in_bbox = as.logical(inside_mat[, 1]))
+# 
+# csv_in_bbox <- csv_pts_wgs84 |>
+#   filter(in_bbox)
+# 
+# # Quick peek
+# csv_pts_wgs84
+# csv_in_bbox

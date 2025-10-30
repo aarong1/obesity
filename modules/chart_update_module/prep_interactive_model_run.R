@@ -2,7 +2,7 @@ library(tidyverse)
 library(data.table)
 
 load('prep_interactive_model_run.RData')
-initial_time_zero_population$year <- 2025
+initial_time_zero_population$year <- 2022
 #test_population <- initial_time_zero_population
 # test_specification <- model_specification
 

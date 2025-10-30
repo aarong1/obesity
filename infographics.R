@@ -8,18 +8,10 @@ style <- list(
   emphasis = list(opacity = 1) # on hover
 )
 
-y <- rnorm(10, 10, 2)
-df <- data.frame(
-  x = 'M',
-  y = 1,
-  z = 'Males'
+symbols = c(
+  'path://M31.193,4.507a4.507,4.507 0 1,0 -9.014,0a4.507,4.507 0 1,0 9.014,0 M28.256,11.163c-1.123-0.228-2.344-0.218-3.447,0.042c-7.493,0.878-9.926,9.551-9.239,16.164 c0.298,2.859,4.805,2.889,4.504,0c-0.25-2.41-0.143-6.047,1.138-8.632c0,3.142,0,6.284,0,9.425c0,0.111,0.011,0.215,0.016,0.322 c-0.003,0.051-0.015,0.094-0.015,0.146c0,7.479-0.013,14.955-0.322,22.428c-0.137,3.322,5.014,3.309,5.15,0 c0.242-5.857,0.303-11.717,0.317-17.578c0.244,0.016,0.488,0.016,0.732,0.002c0.015,5.861,0.074,11.721,0.314,17.576 c0.137,3.309,5.288,3.322,5.15,0c-0.309-7.473-0.32-14.949-0.32-22.428c0-0.232-0.031-0.443-0.078-0.646 c-0.007-3.247-0.131-6.497-0.093-9.742c1.534,2.597,1.674,6.558,1.408,9.125c-0.302,2.887,4.206,2.858,4.504,0 C38.678,20.617,36.128,11.719,28.256,11.163z',
+  'path://M49.437,19.672c5.424,0,9.836-4.413,9.836-9.836S54.861,0,49.437,0c-5.423,0-9.835,4.413-9.835,9.836 S44.013,19.672,49.437,19.672z M71.508,52.416L62.73,25.217c-0.47-1.456-2.037-2.596-3.566-2.596h-2.127c-0.031,0-0.059,0.009-0.09,0.01 c-0.032-0.001-0.062-0.01-0.094-0.01H42.023c-0.058,0-0.112,0.014-0.169,0.017c-0.055-0.003-0.106-0.017-0.161-0.017h-1.654 c-1.53,0-3.096,1.14-3.566,2.596l-8.777,27.198c-0.26,0.807-0.152,1.623,0.297,2.24c0.449,0.617,1.193,0.971,2.041,0.971h1.38 c1.526,0,3.098-1.135,3.579-2.584l4.031-12.159v6.562c-0.678,0.403-1.265,0.954-1.616,1.572l-6.617,11.684 c-0.414,0.73-0.478,1.553-0.175,2.258c0.302,0.705,0.942,1.226,1.757,1.43l7.232,1.809v29.005c0,2.206,1.794,4,4,4h0.976 c2.206,0,4-1.794,4-4V68.348c0.34,0.033,0.699,0.052,1.069,0.052c0.472,0,0.925-0.03,1.344-0.083v26.886c0,2.206,1.794,4,4,4h0.976 c2.206,0,4-1.794,4-4V66.08l6.542-1.68c0.812-0.208,1.45-0.733,1.75-1.44s0.236-1.53-0.177-2.259l-6.617-11.684 c-0.35-0.619-0.938-1.169-1.616-1.572V40.56l4.336,12.505c0.499,1.437,2.08,2.562,3.6,2.562h1.382c0.848,0,1.591-0.354,2.041-0.971 C71.66,54.039,71.768,53.222,71.508,52.416z'
 )
-df2 <- data.frame(
-  x = 'F',
-  y = 2,
-  z = 'Females'
-)
-th <- read_json('theme.json')
 
 bmi_sex_df <- pop |> 
   filter(!is.na(bmi)) |> 
@@ -32,13 +24,14 @@ bmi_sex_df <- pop |>
   mutate(symbols=symbols)
    
 
-males_bmi_sex_df <- bmi_sex_df|> 
-  select('Males') |> 
-  mutate(x=1.5)
+# males_bmi_sex_df <- bmi_sex_df|> 
+#   select('Males') |> 
+#   mutate(x=1.5)
+# 
+# females_bmi_sex_df <- bmi_sex_df|> 
+#   select(c(1)) |> 
+#   mutate(x=0.5)
 
-females_bmi_sex_df <- bmi_sex_df|> 
-  select(c(1)) |> 
-  mutate(x=0.5)
 (
 overweight_obese_sex <- bmi_sex_df |> 
    group_by(sex) |>
@@ -112,7 +105,7 @@ BMI_parallel_chart <- reduced_pop |>
               lineStyle = list(
                 opacity = 0.1))) |> 
   
-  e_title("BMI Chart with contributing and adjacent characteristics") |> 
+  # e_title("BMI Chart with contributing and adjacent characteristics") |> 
   e_theme('walden')
 
 # ------
@@ -210,17 +203,9 @@ e_labels(show = T, position='insidetop') |>
   e_tooltip()
 
 
-
-df <- data.frame(
-  parents = c("","CVD", "CVD", "cancer", "cancer", "cariology", "cariology", "peripheral", "peripheral", "fish", "fish", "Everything", "Everything", "Everything"),
-  labels = c("Everything", "cardiology", "peripheral", "valley", "crater", "forest", "river", "diabetes", "fish", "shark", "tuna", "resp","CVD", "cancer"),
-  value = c(0, 30, 40, 10, 10, 20, 10, 20, 20, 8, 12, 10, 70, 20)
-)
-
 universe <- data.tree::FromDataFrameNetwork(hier)
 
 # create a tree object
-universe <- data.tree::FromDataFrameNetwork(df)
 
 obesity_effects_sunburst <- universe |> 
   e_charts() |> 
@@ -254,8 +239,9 @@ cb <- "() => {
   }, 5000);
 }"
 
-e_morph(sunburst, treemap, callback = cb)
+e_morph(obesity_effects_sunburst, obesity_effects_treemap, callback = cb)
 
+rm( list =c('x','x0','x1','x2','xx','geo','universe'))
 
 bmi_sya_age <- pop |> 
   count(bmi,age) |>  #=as.character(age)
@@ -302,7 +288,10 @@ trusts <- st_make_valid(trusts)
 
 trusts1 <- st_simplify(trusts,
                        preserveTopology = TRUE,
-                       dTolerance = 2000)
+                       dTolerance = 1000)
+
+rm(list='trusts')
+# plot(trusts1)
 
 file.remove("./data/trusts.geojson")
 st_write(trusts1,'./data/trusts.geojson', append = FALSE)
@@ -345,7 +334,6 @@ cb <- "() => {
 
   
 
-bar_map_morph <- e_morph(trusts_map, trust_bar, callback = cb)
 
 (
 trust_bar <-  
@@ -385,6 +373,7 @@ trust_bar <-
 )
 
 
+bar_map_morph <- e_morph(trusts_map, trust_bar, callback = cb)
 
 ########################################
 ########################################
@@ -451,19 +440,19 @@ library(htmlwidgets)
     setView(lng = -6.988054, lat = 54.60701, zoom = 7)
 }
 
-
+# 
 lrg_leaflet <- leaflet(elementId = 'map',width='100vw',height='100vh',
         #options = leafletOptions(zoomControl = FALSE)
 ) %>%
   # htmlwidgets::onRender("function(el, x) {
-  #   L.control.zoom({ position: 'bottomright' }).addTo(this)}") |> 
-  addTiles() |> 
-  setView(lng = -5.9576, lat = 54.904, zoom = 8) |> 
-  # addMarkers(lng = -0.1276, lat = 51.5074, popup = "London") |> 
-  
+  #   L.control.zoom({ position: 'bottomright' }).addTo(this)}") |>
+  addTiles() |>
+  setView(lng = -5.9576, lat = 54.904, zoom = 8) |>
+  # addMarkers(lng = -0.1276, lat = 51.5074, popup = "London") |>
+
   addCircles(data = parks,
              weight = 15,
-             # radius = 150, 
+             # radius = 150,
              fillOpacity = 1,
              fillColor  = 'mediumseagreen',
              fill = F,
@@ -471,9 +460,9 @@ lrg_leaflet <- leaflet(elementId = 'map',width='100vw',height='100vh',
              color = 'mediumseagreen',
              stroke = T,
              label = ~name#,
-             
+
              #popup = ~as.character(name)
-  ) |> 
+  ) |>
   addCircles(data = fast_food,
              weight = 15,
              fillOpacity = 1,
@@ -482,8 +471,9 @@ lrg_leaflet <- leaflet(elementId = 'map',width='100vw',height='100vh',
              opacity=0.5,
              color = 'steelblue',
              stroke = T,
-             label = ~name) |> 
+             label = ~name) |>
   addLegend(position = 'bottomright',
             colors = c('mediumseagreen','steelblue'),
             labels = c('Parks','Fast Food Outlets'),
-            opacity = 1) 
+            opacity = 1)
+

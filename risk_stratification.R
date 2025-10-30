@@ -157,108 +157,93 @@ deprivation_risk_by_bmi_chart<- pop |>
   
   
   # helper: build transition nodes/edges from consecutive years per id
-  risk_transition_graph <- function(
-    data = map_filtered_chart(),      # your filtered microsim
-    id    = id,                       # individual id column
-    time  = year,                     # time/order column
-    risk  = qrisk_score,              # numeric risk column (0–1 or 0–100)
-    breaks = seq(0, 0.4, by = 0.02)   # risk bins for nodes
-  ) {
-    id   <- rlang::enquo(id)
-    time <- rlang::enquo(time)
-    risk <- rlang::enquo(risk)
-    
-    df <- data |>
-      dplyr::select(!!id, !!time, !!risk) |>
-      dplyr::filter(!is.na(!!risk), !is.na(!!time)) |>
-      dplyr::mutate(
-        .risk = dplyr::if_else(!!risk > 1, !!risk / 100, !!risk),      # 0–1
-        .risk = pmin(pmax(.risk, min(breaks)), max(breaks)),           # clamp
-        bin   = cut(.risk, breaks = breaks, right = FALSE,
-                    include.lowest = TRUE),
-        bin   = as.character(bin)
-      )
-    
-    # nodes: how often each bin occurs overall
-    nodes <- df |>
-      dplyr::count(bin, name = "value") |>
-      dplyr::mutate(
-        name = bin,
-        size = scales::rescale(value, to = c(8, 40))  # node size
-      ) |>
-      dplyr::select(name, value, size)
-    
-    # edges: consecutive transitions within each id ordered by time
-    edges <- df |>
-      dplyr::arrange(!!id, !!time) |>
-      dplyr::group_by(!!id) |>
-      dplyr::mutate(from = dplyr::lag(bin), to = bin) |>
-      dplyr::ungroup() |>
-      dplyr::filter(!is.na(from), !is.na(to)) |>
-      dplyr::count(from, to, name = "value") |>
-      dplyr::rename(source = from, target = to)
-    
-    list(nodes = nodes, edges = edges)
-  }
+  # risk_transition_graph <- function(
+  #   data = map_filtered_chart(),      # your filtered microsim
+  #   id    = id,                       # individual id column
+  #   time  = year,                     # time/order column
+  #   risk  = qrisk_score,              # numeric risk column (0–1 or 0–100)
+  #   breaks = seq(0, 0.4, by = 0.02)   # risk bins for nodes
+  # ) {
+  #   id   <- rlang::enquo(id)
+  #   time <- rlang::enquo(time)
+  #   risk <- rlang::enquo(risk)
+  #   
+  #   df <- data |>
+  #     dplyr::select(!!id, !!time, !!risk) |>
+  #     dplyr::filter(!is.na(!!risk), !is.na(!!time)) |>
+  #     dplyr::mutate(
+  #       .risk = dplyr::if_else(!!risk > 1, !!risk / 100, !!risk),      # 0–1
+  #       .risk = pmin(pmax(.risk, min(breaks)), max(breaks)),           # clamp
+  #       bin   = cut(.risk, breaks = breaks, right = FALSE,
+  #                   include.lowest = TRUE),
+  #       bin   = as.character(bin)
+  #     )
+  #   
+  #   # nodes: how often each bin occurs overall
+  #   nodes <- df |>
+  #     dplyr::count(bin, name = "value") |>
+  #     dplyr::mutate(
+  #       name = bin,
+  #       size = scales::rescale(value, to = c(8, 40))  # node size
+  #     ) |>
+  #     dplyr::select(name, value, size)
+  #   
+  #   # edges: consecutive transitions within each id ordered by time
+  #   edges <- df |>
+  #     dplyr::arrange(!!id, !!time) |>
+  #     dplyr::group_by(!!id) |>
+  #     dplyr::mutate(from = dplyr::lag(bin), to = bin) |>
+  #     dplyr::ungroup() |>
+  #     dplyr::filter(!is.na(from), !is.na(to)) |>
+  #     dplyr::count(from, to, name = "value") |>
+  #     dplyr::rename(source = from, target = to)
+  #   
+  #   list(nodes = nodes, edges = edges)
+  # }
   
-  
-  new_year_pop <- reduced_pop |> 
-    mutate(year = year +1) |> 
-    mutate(
-      .risk = dplyr::if_else(qrisk_score > 1, qrisk_score / 100, qrisk_score),      # 0–1
-      .risk = pmin(pmax(.risk, 0), 1),           # clamp
-      qrisk_score = .risk + rnorm(n(),mean=0,sd=0.1)
-    ) |> 
-    select(-.risk)
-  
-  pop1 <- rbind(reduced_pop,
-                new_year_pop)
-  
-  risk_ds <- risk_transition_graph(pop1)
+  # 
+  # new_year_pop <- reduced_pop |> 
+  #   mutate(year = year +1) |> 
+  #   mutate(
+  #     .risk = dplyr::if_else(qrisk_score > 1, qrisk_score / 100, qrisk_score),      # 0–1
+  #     .risk = pmin(pmax(.risk, 0), 1),           # clamp
+  #     qrisk_score = .risk + rnorm(n(),mean=0,sd=0.1)
+  #   ) |> 
+  #   select(-.risk)
+  # 
+  # pop1 <- rbind(reduced_pop,
+  #               new_year_pop)
+  # 
+  # risk_ds <- risk_transition_graph(pop1)
   
   #risk_ds$nodes[['name']] = as.character(c(rep(1,10),rep(2,10)))
 
-  echarts4r::e_charts() |>
-    echarts4r::e_graph(
-      layout   = "circular",
-      circular = list(rotateLabel = TRUE),
-      roam     = TRUE,
-      lineStyle = list(color = "source", curveness = 0.3),
-      label     = list(position = "right", formatter = "{b}")
-    ) |>
-    echarts4r::e_graph_nodes(
-      nodes = risk_ds$nodes,
-      names = name,
-      value = value,
-      size  = size,
-      category = name    # color by bin (simple default)
-    ) |>
-    echarts4r::e_graph_edges(
-      edges  = risk_ds$edges,
-      source = source,
-      target = target,
-      value  = value     # shows in tooltip; can map to width with edgeStyle if desired
-    ) |>
-    echarts4r::e_tooltip()
+  # echarts4r::e_charts() |>
+  #   echarts4r::e_graph(
+  #     layout   = "circular",
+  #     circular = list(rotateLabel = TRUE),
+  #     roam     = TRUE,
+  #     lineStyle = list(color = "source", curveness = 0.3),
+  #     label     = list(position = "right", formatter = "{b}")
+  #   ) |>
+  #   echarts4r::e_graph_nodes(
+  #     nodes = risk_ds$nodes,
+  #     names = name,
+  #     value = value,
+  #     size  = size,
+  #     category = name    # color by bin (simple default)
+  #   ) |>
+  #   echarts4r::e_graph_edges(
+  #     edges  = risk_ds$edges,
+  #     source = source,
+  #     target = target,
+  #     value  = value     # shows in tooltip; can map to width with edgeStyle if desired
+  #   ) |>
+  #   echarts4r::e_tooltip()
 
 
 #dumbbell plot echarts -----
-  df <- data.frame(
-    x = rep(c('normal','overweight','Obese'),each=2),
-    y = c(3,5,4,8,2,6),
-    z = rep(c('normal','overweight','Obese'),each=2)
-  )
 
-  df |> 
-    group_by(z) |> 
-    e_charts(x) |>
-    e_line(y ,symbolSize = 26, symbol = 'circle') |> 
-    # coord_flip() |> 
-    e_tooltip() |> 
-    echarts4r::e_flip_coords() |> 
-    e_grid(left='20%') |> 
-    e_theme('walden')
-  
 
 df <- reduced_pop |> 
   # mutate(townsend_half = (custom_townsend_score_dz <max(custom_townsend_score_dz)/2)) |> 
@@ -432,34 +417,44 @@ x <- pop |>
 )
 
   
-reduced_pop |> 
-    filter(age>25) |> 
-    slice_sample(weight_by = (1-qrisk_percentile),prop = 0.1) |> 
-    group_by(bmi) |>
-    filter(!is.na(bmi)) |>
-    e_charts(height=290) |> 
-    e_density(qrisk_percentile,breaks=5) |>
-     
-    e_mark_line(title = 'Baseline',
-      data = list(
-      type = "average",
-      name = "Average"
-    )) |> 
-  e_theme('walden')
+# reduced_pop |> 
+#     filter(age>25) |> 
+#     slice_sample(weight_by = (1-qrisk_percentile),prop = 0.1) |> 
+#     group_by(bmi) |>
+#     filter(!is.na(bmi)) |>
+#     e_charts(height=290) |> 
+#     e_density(qrisk_percentile,breaks=5) |>
+#      
+#     e_mark_line(title = 'Baseline',
+#       data = list(
+#       type = "average",
+#       name = "Average"
+#     )) |> 
+#   e_theme('walden')
+  
+  
     # e_color(color = c('orange','red','blue','green')) |>
     # e_flip_coords()
   
-  risk_bmi
-  risk_prob_density_fn_age10 
-  heatmap_risk_factors
-  comorbidities_bmi_townsend_extreme
+######################################
+######################################
+######################################
+  # risk_bmi
+  # risk_prob_density_fn_age10 
+  # heatmap_risk_factors
+  # comorbidities_bmi_townsend_extreme
+  # 
+  # zoomout_risk_age_bmi
+  # zoomin_risk_age_bmi
+  # 
+  # deprivation_risk_by_bmi_chart
+  # comorbidities_curve_wo_0_or_1
+  # comorbidities_age
+  # comorbidities_bmi
+  # risk_graph
   
-  zoomout_risk_age_bmi
-  zoomin_risk_age_bmi
-  
-  deprivation_risk_by_bmi_chart
-  comorbidities_curve_wo_0_or_1
-  comorbidities_age
-  comorbidities_bmi
-  risk_graph
+######################################
+######################################
+######################################
+
   
